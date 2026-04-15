@@ -12,13 +12,13 @@
 
 // ─── BALANCEAMENTO DE PONTUAÇÃO (baseado nos prêmios) ───
 export const SCORE = {
-  ENEMY_MIGALHA:   100,   // ~100 pts por mini-inimigo
+  ENEMY_MIGALHA:   100,
   ENEMY_COBERTURA: 150,
   ENEMY_DARKBAKER: 200,
-  PENALTY_ESCAPED: -30,
-  BOSS_LIMONE:   1_000,
-  BOSS_TARTUFAO: 2_000,
-  BOSS_OVERLORD: 3_000,
+  PENALTY_ESCAPED: -500,  // -500 pts por inimigo que escapa
+  BOSS_LIMONE:   5_000,   // Conforme PDF
+  BOSS_TARTUFAO: 8_000,
+  BOSS_OVERLORD: 15_000, // Conforme PDF
 };
 
 export const PRIZE_THRESHOLDS = [
@@ -74,9 +74,9 @@ Object.values(A).flat().forEach(s=>img(s));
 const GC=['projGranR','projGranT','projGranA','projGranP','projGranX'];
 
 const WAVES=[
-  {types:['migalha'],             si:1500, spd:1.0, maxEn:16, boss:'limone',  bHp:300, bPts:SCORE.BOSS_LIMONE},
-  {types:['migalha','cobertura'], si:1200, spd:1.4, maxEn:22, boss:'tartufao',bHp:500, bPts:SCORE.BOSS_TARTUFAO},
-  {types:['migalha','cobertura','darkbaker'], si:900, spd:1.8, maxEn:28, boss:'overlord',bHp:800, bPts:SCORE.BOSS_OVERLORD},
+  {types:['migalha'],             si:1500, spd:1.0, maxEn:12, boss:'limone',  bHp:300, bPts:SCORE.BOSS_LIMONE},
+  {types:['migalha','cobertura'], si:1200, spd:1.4, maxEn:16, boss:'tartufao',bHp:500, bPts:SCORE.BOSS_TARTUFAO},
+  {types:['migalha','cobertura','darkbaker'], si:900, spd:1.8, maxEn:20, boss:'overlord',bHp:800, bPts:SCORE.BOSS_OVERLORD},
 ];
 
 const PATS=['line','v','diagonal','scatter','zigzag','arc'];
@@ -292,10 +292,10 @@ export default function GameEngine({
       S.bullets=S.bullets.filter(b=>{b.y-=b.speed;b.x+=(b.dx||0);if(b.y+b.h<0||b.x<-20||b.x>W+20)return false;b.ft+=dt;if(b.ft>80){b.f=(b.f+1)%b.frames.length;b.ft=0;}draw(b.frames[b.f],b.x,b.y,b.w,b.h);return true;});
       S.eBullets=S.eBullets.filter(eb=>{eb.y+=eb.speed;eb.x+=(eb.dx||0);if(eb.y>H+10||eb.x<-30||eb.x>W+30)return false;eb.ft+=dt;if(eb.ft>100){eb.f=(eb.f+1)%eb.frames.length;eb.ft=0;}draw(eb.frames[eb.f],eb.x,eb.y,eb.w,eb.h);if(!inv&&collides(eb,S.player)){loseLife(now);return false;}return true;});
 
-      // Spawning
+      // Spawning (max 8 enemies on screen at once)
       if(S.phase==='spawning'){
-        const w=WAVES[S.waveIdx], si=Math.max(500,w.si/S.loopMult);
-        if(S.spawnN<w.maxEn&&now-S.lastSpT>si){spawnGroup();S.lastSpT=now;}
+        const w=WAVES[S.waveIdx], si=Math.max(600,w.si/S.loopMult);
+        if(S.spawnN<w.maxEn&&S.enemies.length<8&&now-S.lastSpT>si){spawnGroup();S.lastSpT=now;}
         if(S.spawnN>=w.maxEn&&S.enemies.length===0)spawnBoss();
       }
 
