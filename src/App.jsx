@@ -199,10 +199,6 @@ function GameOverScreen({score, playerData, onRetry, onHome}){
       setLoading(false);
     }
     processPrizes();
-      } catch(e){ console.error('Prize error:',e); }
-      setLoading(false);
-    }
-    processPrizes();
   },[score,playerData]);
 
   return(
