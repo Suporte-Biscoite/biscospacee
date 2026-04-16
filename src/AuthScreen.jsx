@@ -72,6 +72,42 @@ export default function AuthScreen({ onAuth }) {
     const clean = phone.replace(/\D/g, '');
     if (clean.length < 10) { setError('Digite um telefone válido com DDD'); return; }
     setError('');
+    setLoading(true);
+
+    // Verificar se telefone já tem cadastro
+    try {
+      const res = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: clean, playerId: '__CHECK__' }),
+      });
+      const data = await res.json();
+      // Se API retornou jogador existente, pula direto pro jogo
+      if (data.ok && data.player && data.message?.includes('já registrado')) {
+        let existingPrizes = [];
+        try {
+          const pRes = await fetch(`/api/prize?phone=${clean}`);
+          const pData = await pRes.json();
+          existingPrizes = pData.prizes || [];
+        } catch (e) { /* ignore */ }
+        setLoading(false);
+        onAuth({ phone: clean, playerId: data.player.playerId, existingPrizes });
+        return;
+      }
+    } catch (e) {
+      // API offline — verificar localStorage
+      const stored = JSON.parse(localStorage.getItem('biscoite_players') || '{}');
+      if (stored[clean]) {
+        const day = new Date().toISOString().split('T')[0];
+        const localPrizes = JSON.parse(localStorage.getItem(`biscoite_prizes_${clean}_${day}`) || '[]');
+        setLoading(false);
+        onAuth({ phone: clean, playerId: stored[clean].playerId, existingPrizes: localPrizes, offline: true });
+        return;
+      }
+    }
+
+    // Telefone novo — pedir ID
+    setLoading(false);
     setStep('id');
   };
 

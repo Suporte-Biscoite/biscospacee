@@ -26,7 +26,21 @@ export default async function handler(req, res) {
   const cleanPhone = phone.replace(/\D/g, '');
   if (cleanPhone.length < 10 || cleanPhone.length > 11) return res.status(400).json({ error: 'Telefone inválido' });
   
-  const cleanId = playerId.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4);
+  const cleanId = playerId === '__CHECK__' ? null : playerId.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4);
+  
+  // Se é só verificação de telefone existente
+  if (!cleanId) {
+    try {
+      const existingPlayer = await kv.get(`player:${cleanPhone}`);
+      if (existingPlayer) {
+        return res.status(200).json({ ok: true, player: existingPlayer, message: 'Jogador já registrado. Bem-vindo de volta!' });
+      }
+      return res.status(200).json({ ok: false, message: 'Telefone não cadastrado' });
+    } catch (err) {
+      return res.status(200).json({ ok: false, message: 'Telefone não cadastrado' });
+    }
+  }
+
   if (cleanId.length < 3) return res.status(400).json({ error: 'ID deve ter 3-4 caracteres alfanuméricos' });
 
   try {
