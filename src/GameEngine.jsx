@@ -10,15 +10,15 @@
  * - Ondas variadas com formações divertidas
  */
 
-// ─── BALANCEAMENTO DE PONTUAÇÃO (baseado nos prêmios) ───
+// ─── BALANCEAMENTO DE PONTUAÇÃO v2 ───
 export const SCORE = {
-  ENEMY_MIGALHA:   100,
-  ENEMY_COBERTURA: 150,
-  ENEMY_DARKBAKER: 200,
-  PENALTY_ESCAPED: -250,  // -250 pts por inimigo que escapa
-  BOSS_LIMONE:   5_000,   // Conforme PDF
+  ENEMY_MIGALHA:   500,   // Wave 1 enemies
+  ENEMY_COBERTURA: 600,   // Wave 2 enemies
+  ENEMY_DARKBAKER: 800,   // Wave 3 enemies
+  PENALTY_ESCAPED: -100,  // -100 pts por inimigo que escapa
+  BOSS_LIMONE:   5_000,
   BOSS_TARTUFAO: 8_000,
-  BOSS_OVERLORD: 15_000, // Conforme PDF
+  BOSS_OVERLORD: 15_000,
 };
 
 export const PRIZE_THRESHOLDS = [
@@ -130,7 +130,7 @@ export default function GameEngine({
         x,y,w:eW,h:eH, speed:spd+rand(-0.2,0.2),
         hp:1, type:t, frames:A[t].map(img), f:0, ft:0,
         pts:SCORE[`ENEMY_${t.toUpperCase()}`]||100,
-        sT:rand(2500,6000), dx:rand(-0.2,0.2),
+        sT:rand(3500,8000), dx:rand(-0.2,0.2),
       });
 
       let spawned=0;
@@ -226,7 +226,7 @@ export default function GameEngine({
 
         // ═══ LIMONÊ — Chuva cítrica: gotas caem em arco ═══
         if(from.name==='limone'){
-          const count=bossPhase>=2?5:3;
+          const count=bossPhase>=2?3:2;
           for(let i=0;i<count;i++){
             const angle=(i/(count-1)-0.5)*1.2; // spread de -0.6 a 0.6
             S.eBullets.push({x:cx,y:cy,w:blW,h:blH,speed:(3+bossPhase*0.8)*S.loopMult,dx:angle*2.5,frames:pf,f:0,ft:0});
@@ -234,7 +234,7 @@ export default function GameEngine({
         }
         // ═══ TARTUFÃO — Rajada concentrada: 3 tiros rápidos em sequência ═══
         else if(from.name==='tartufao'){
-          const burstCount=bossPhase>=2?4:2;
+          const burstCount=bossPhase>=2?2:1;
           for(let i=0;i<burstCount;i++){
             setTimeout(()=>{
               if(!S.boss)return;
@@ -252,7 +252,7 @@ export default function GameEngine({
         }
         // ═══ OVERLORD — Padrão espiral: chips giram em espiral ═══
         else if(from.name==='overlord'){
-          const count=bossPhase>=3?8:bossPhase>=2?6:4;
+          const count=bossPhase>=3?5:bossPhase>=2?4:3;
           for(let i=0;i<count;i++){
             const a=(Math.PI*2/count)*i+(from.angle||0);
             S.eBullets.push({
@@ -369,7 +369,7 @@ export default function GameEngine({
         en.ft+=rawDt;if(en.ft>110){en.f=(en.f+1)%en.frames.length;en.ft=0;}
         draw(en.frames[en.f],en.x,en.y,en.w,en.h);
         if(!inv&&collides(en,S.player)){loseLife(now);return false;}
-        en.sT-=rawDt;if(en.sT<=0){fireEnemy(en,false);en.sT=rand(2500,6000)/S.loopMult;}
+        en.sT-=rawDt;if(en.sT<=0){fireEnemy(en,false);en.sT=rand(3500,8000)/S.loopMult;}
         let hit=false;
         S.bullets=S.bullets.filter(b=>{if(!hit&&collides(b,en)){en.hp-=1;hit=true;if(en.hp<=0){addScore(en.pts,en.x+en.w/2,en.y);spawnDrop(en.x+en.w/2,en.y+en.h/2);}return false;}return true;});
         return en.hp>0;
@@ -455,7 +455,7 @@ export default function GameEngine({
         draw(b.frames[b.f],b.x,b.y,b.w,b.h);
 
         // Boss shooting (faster in higher phases)
-        const shootInterval=Math.max(400, (1200-b.phase*200)/S.loopMult);
+        const shootInterval=Math.max(800, (1800-b.phase*200)/S.loopMult);
         b.sT-=rawDt;
         if(b.sT<=0&&b.y>=b.targetY){fireEnemy(b,true);b.sT=shootInterval;}
         if(!inv&&collides(b,S.player))loseLife(now);
