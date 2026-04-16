@@ -385,7 +385,16 @@ function GameOverScreen({score, playerData, onHome}){
                 }}>
                   {p.coupon}
                 </div>
-                {isCheat&&<p style={{fontSize:7,color:'#ff4466',marginTop:8,fontFamily:'monospace'}}>⚠ MODO TESTE — VOUCHER NÃO CONSUMIDO</p>}
+                {/* QR CODE para atendente escanear */}
+                <div style={{marginTop:16,padding:12,background:'#fff',borderRadius:12,display:'inline-block'}}>
+                  <img
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(p.coupon)}`}
+                    alt={`QR ${p.coupon}`}
+                    style={{width:200,height:200,display:'block'}}
+                  />
+                </div>
+                <p style={{fontSize:7,color:'#556677',marginTop:6,fontFamily:'monospace'}}>Mostre o QR Code para a atendente</p>
+                {isCheat&&<p style={{fontSize:7,color:'#ff4466',marginTop:4,fontFamily:'monospace'}}>⚠ MODO TESTE — VOUCHER NÃO CONSUMIDO</p>}
               </div>
             ))}
           </div>
