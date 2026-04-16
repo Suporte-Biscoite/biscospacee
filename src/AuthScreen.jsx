@@ -68,7 +68,7 @@ export default function AuthScreen({ onAuth }) {
     return `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7,11)}`;
   };
 
-  const handlePhoneNext = () => {
+  const handlePhoneNext = async () => {
     const clean = phone.replace(/\D/g, '');
     if (clean.length < 10) { setError('Digite um telefone válido com DDD'); return; }
     setError('');
