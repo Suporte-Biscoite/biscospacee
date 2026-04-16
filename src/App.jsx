@@ -29,6 +29,8 @@ function BossHUD({boss}){
   const c=BC[boss.name]||BC.limone, pct=Math.max(0,boss.hp/boss.maxHp), dng=pct<0.2, col=dng?'#ff4466':c.color, ph=boss.phase||1;
   return(
     <div style={{position:'absolute',top:56,left:'50%',transform:'translateX(-50%)',width:'min(420px,92%)',zIndex:25,fontFamily:"'Press Start 2P','Orbitron',monospace",pointerEvents:'none'}}>
+      {/* Fundo escuro opaco para a barra não sumir no boss */}
+      <div style={{position:'absolute',inset:'-8px -12px',background:'rgba(2,4,10,0.92)',borderRadius:12,zIndex:0,boxShadow:'0 4px 20px rgba(0,0,0,0.8)'}}/>
       <div style={{display:'flex',alignItems:'center',gap:0,position:'relative',zIndex:2}}>
         <div style={{width:44,height:44,border:`2px solid ${col}`,borderBottom:'none',borderRadius:'6px 6px 0 0',background:'#08101e',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,flexShrink:0,boxShadow:`0 0 10px ${c.glow}`}}>{c.emoji}</div>
         <div style={{flex:1,display:'flex',flexDirection:'column',gap:1,padding:'0 8px 3px',borderBottom:`2px solid ${col}`}}>
@@ -40,7 +42,7 @@ function BossHUD({boss}){
         </div>
         <div style={{position:'absolute',right:0,bottom:5,fontSize:7,color:col,letterSpacing:1}}>{boss.hp}/{boss.maxHp}</div>
       </div>
-      <div style={{width:'100%',height:18,background:'#020810',border:`2px solid ${col}`,borderTop:'none',borderRadius:'0 0 5px 5px',position:'relative',overflow:'hidden',boxShadow:`0 4px 14px ${c.glow}`}}>
+      <div style={{width:'100%',height:18,background:'#020810',border:`2px solid ${col}`,borderTop:'none',borderRadius:'0 0 5px 5px',position:'relative',overflow:'hidden',zIndex:2,boxShadow:`0 4px 14px ${c.glow}`}}>
         <div style={{position:'absolute',top:0,left:0,bottom:0,width:`${pct*100}%`,background:dng?'linear-gradient(90deg,#ff2222,#ff6600)':c.grad,transition:'width 0.15s ease',backgroundImage:'repeating-linear-gradient(90deg,transparent 0px,transparent 10px,rgba(0,0,0,0.3) 10px,rgba(0,0,0,0.3) 12px)'}}>
           <div style={{position:'absolute',top:0,left:0,right:0,height:5,background:'linear-gradient(180deg,rgba(255,255,255,0.2),transparent)'}}/>
         </div>
@@ -117,6 +119,16 @@ function GameScreen({playerData, onGameOver}){
         </div>
       </div>
       {toast&&<Toast msg={toast} onDone={()=>{setToast(null);setTimeout(flushT,300);}} />}
+
+      {/* CHEAT: botão de morrer para usuário de teste */}
+      {playerData?.phone===CHEAT_PHONE&&(
+        <button onClick={()=>onGameOver(score)}
+          style={{position:'absolute',top:100,right:12,zIndex:40,padding:'10px 16px',borderRadius:10,
+            background:'rgba(255,0,0,0.3)',border:'2px solid #ff4466',color:'#ff4466',
+            fontFamily:"'Press Start 2P',monospace",fontSize:8,cursor:'pointer',
+            letterSpacing:1,WebkitTapHighlightColor:'transparent',
+          }}>☠️ MORRER</button>
+      )}
     </div>
   );
 }

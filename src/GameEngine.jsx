@@ -15,7 +15,7 @@ export const SCORE = {
   ENEMY_MIGALHA:   100,
   ENEMY_COBERTURA: 150,
   ENEMY_DARKBAKER: 200,
-  PENALTY_ESCAPED: -500,  // -500 pts por inimigo que escapa
+  PENALTY_ESCAPED: -250,  // -250 pts por inimigo que escapa
   BOSS_LIMONE:   5_000,   // Conforme PDF
   BOSS_TARTUFAO: 8_000,
   BOSS_OVERLORD: 15_000, // Conforme PDF
@@ -182,7 +182,7 @@ export default function GameEngine({
     function spawnBoss(){
       const w=WAVES[S.waveIdx], sz=bSz[w.boss];
       S.boss={
-        x:W/2-sz/2, y:-sz-20, w:sz, h:sz, targetY:30,
+        x:W/2-sz/2, y:-sz-20, w:sz, h:sz, targetY:130,
         hp:Math.floor(w.bHp*S.loopMult), maxHp:Math.floor(w.bHp*S.loopMult),
         dx:1.8*S.loopMult, frames:A[w.boss].map(img), f:0, ft:0,
         name:w.boss, pts:w.bPts, sT:800,
@@ -221,11 +221,52 @@ export default function GameEngine({
       const bossPhase=from.phase||1;
       if(isBoss){
         const pf=(from.name==='limone'?A.projGota:from.name==='tartufao'?A.projPalito:A.projChip).map(img);
-        // Phase 1: 3 shots, Phase 2+: 5 shots + faster
-        const spread=bossPhase>=2?[-2,-1,0,1,2]:[-1,0,1];
-        spread.forEach(d=>{
-          S.eBullets.push({x:cx,y:cy,w:blW,h:blH,speed:(3.5+bossPhase*0.5)*S.loopMult,dx:d*1.2,frames:pf,f:0,ft:0});
-        });
+
+        // ═══ LIMONÊ — Chuva cítrica: gotas caem em arco ═══
+        if(from.name==='limone'){
+          const count=bossPhase>=2?5:3;
+          for(let i=0;i<count;i++){
+            const angle=(i/(count-1)-0.5)*1.2; // spread de -0.6 a 0.6
+            S.eBullets.push({x:cx,y:cy,w:blW,h:blH,speed:(3+bossPhase*0.8)*S.loopMult,dx:angle*2.5,frames:pf,f:0,ft:0});
+          }
+        }
+        // ═══ TARTUFÃO — Rajada concentrada: 3 tiros rápidos em sequência ═══
+        else if(from.name==='tartufao'){
+          const burstCount=bossPhase>=2?4:2;
+          for(let i=0;i<burstCount;i++){
+            setTimeout(()=>{
+              if(!S.boss)return;
+              const bx=S.boss.x+S.boss.w/2-blW/2;
+              // Mira no jogador
+              const pdx=(S.player.x+S.player.w/2-bx)*0.015;
+              S.eBullets.push({x:bx,y:S.boss.y+S.boss.h,w:blW,h:blH,speed:(4+bossPhase)*S.loopMult,dx:pdx,frames:pf,f:0,ft:0});
+            },i*150);
+          }
+          // Fase 2: tiros laterais extras
+          if(bossPhase>=2){
+            S.eBullets.push({x:cx-from.w/3,y:cy,w:blW,h:blH,speed:3*S.loopMult,dx:-2,frames:pf,f:0,ft:0});
+            S.eBullets.push({x:cx+from.w/3,y:cy,w:blW,h:blH,speed:3*S.loopMult,dx:2,frames:pf,f:0,ft:0});
+          }
+        }
+        // ═══ OVERLORD — Padrão espiral: chips giram em espiral ═══
+        else if(from.name==='overlord'){
+          const count=bossPhase>=3?8:bossPhase>=2?6:4;
+          for(let i=0;i<count;i++){
+            const a=(Math.PI*2/count)*i+(from.angle||0);
+            S.eBullets.push({
+              x:cx,y:cy,w:blW,h:blH,
+              speed:(3+bossPhase*0.5)*S.loopMult,
+              dx:Math.cos(a)*2.5,
+              dy:Math.sin(a)*1.5+2, // componente vertical
+              frames:pf,f:0,ft:0,
+            });
+          }
+          // Fase 3: onda central que persegue
+          if(bossPhase>=3){
+            const pdx=(S.player.x+S.player.w/2-cx)*0.02;
+            S.eBullets.push({x:cx,y:cy,w:blW*2,h:blH*2,speed:5*S.loopMult,dx:pdx,frames:A.projChip.map(img),f:0,ft:0});
+          }
+        }
       } else {
         const pm={migalha:A.miniLP,cobertura:A.miniTP,darkbaker:A.miniCP};
         S.eBullets.push({x:cx,y:cy,w:blW,h:blH,speed:3*S.loopMult,dx:0,frames:(pm[from.type]||A.projPadrao).map(img),f:0,ft:0});
@@ -292,7 +333,7 @@ export default function GameEngine({
 
       // Bullets
       S.bullets=S.bullets.filter(b=>{b.y-=b.speed;b.x+=(b.dx||0);if(b.y+b.h<0||b.x<-20||b.x>W+20)return false;b.ft+=dt;if(b.ft>80){b.f=(b.f+1)%b.frames.length;b.ft=0;}draw(b.frames[b.f],b.x,b.y,b.w,b.h);return true;});
-      S.eBullets=S.eBullets.filter(eb=>{eb.y+=eb.speed;eb.x+=(eb.dx||0);if(eb.y>H+10||eb.x<-30||eb.x>W+30)return false;eb.ft+=dt;if(eb.ft>100){eb.f=(eb.f+1)%eb.frames.length;eb.ft=0;}draw(eb.frames[eb.f],eb.x,eb.y,eb.w,eb.h);if(!inv&&collides(eb,S.player)){loseLife(now);return false;}return true;});
+      S.eBullets=S.eBullets.filter(eb=>{eb.y+=(eb.dy||eb.speed);eb.x+=(eb.dx||0);if(eb.y>H+10||eb.y<-20||eb.x<-30||eb.x>W+30)return false;eb.ft+=dt;if(eb.ft>100){eb.f=(eb.f+1)%eb.frames.length;eb.ft=0;}draw(eb.frames[eb.f],eb.x,eb.y,eb.w,eb.h);if(!inv&&collides(eb,S.player)){loseLife(now);return false;}return true;});
 
       // Spawning (max 8 enemies on screen at once)
       if(S.phase==='spawning'){
@@ -318,18 +359,79 @@ export default function GameEngine({
 
       if(S.phase==='spawning'&&S.spawnN>=WAVES[S.waveIdx].maxEn&&S.enemies.length===0)spawnBoss();
 
-      // Boss with PHASES
+      // Boss with PHASES — UNIQUE MOVEMENT PER BOSS
       if(S.boss){
         const b=S.boss;
         // Entrance
-        if(b.y<b.targetY)b.y+=2;
-        else{
-          b.x+=b.dx;
-          if(b.x<=0||b.x+b.w>=W)b.dx*=-1;
-          // Phase 2: boss moves faster + zigzag
-          if(b.phase>=2){
-            b.x+=Math.sin(now/300)*1.5;
+        if(b.y<b.targetY){ b.y+=3; }
+        else {
+          // ═══ LIMONÊ REX — Zigzag suave, desce um pouco e sobe ═══
+          if(b.name==='limone'){
+            b.x+=b.dx;
+            if(b.x<=8||b.x+b.w>=W-8) b.dx*=-1;
+            // Fase 2: movimento vertical ondulado
+            if(b.phase>=2){
+              b.y=b.targetY+Math.sin(now/600)*30;
+              b.dx=Math.abs(b.dx)<3?b.dx*1.002:b.dx; // acelera gradualmente
+            }
           }
+          // ═══ TARTUFÃO — Dash-and-stop: corre rápido, para, atira, corre ═══
+          else if(b.name==='tartufao'){
+            if(!b.dashTimer) b.dashTimer=0;
+            if(!b.dashing) b.dashing=true;
+            b.dashTimer+=dt;
+            if(b.dashing){
+              b.x+=b.dx*2.2; // move rápido
+              if(b.x<=8||b.x+b.w>=W-8){b.dx*=-1;}
+              if(b.dashTimer>800){b.dashing=false;b.dashTimer=0;} // para depois de 800ms
+            } else {
+              // Parado — ameaçador
+              if(b.dashTimer>600){b.dashing=true;b.dashTimer=0;} // volta a correr
+            }
+            // Fase 2: desce progressivamente e fica mais agressivo
+            if(b.phase>=2){
+              b.targetY=Math.min(b.targetY+0.02, H*0.35);
+              b.y+=(b.targetY-b.y)*0.02;
+            }
+          }
+          // ═══ COOKIE OVERLORD — Circular + persegue o jogador ═══
+          else if(b.name==='overlord'){
+            const centerX=W/2-b.w/2, centerY=b.targetY;
+            const radius=W*0.25;
+            // Fase 1: movimento circular
+            if(b.phase===1){
+              if(!b.angle) b.angle=0;
+              b.angle+=0.015*S.loopMult;
+              b.x=centerX+Math.cos(b.angle)*radius;
+              b.y=centerY+Math.sin(b.angle)*radius*0.3;
+            }
+            // Fase 2: circular + persegue jogador no eixo X
+            else if(b.phase===2){
+              if(!b.angle) b.angle=0;
+              b.angle+=0.02*S.loopMult;
+              const targetX=S.player.x-b.w/2;
+              b.x+=(targetX-b.x)*0.015; // persegue suavemente
+              b.y=centerY+Math.sin(b.angle)*40;
+            }
+            // Fase 3: AVANÇO! — desce e persegue agressivamente
+            else if(b.phase>=3){
+              if(!b.angle) b.angle=0;
+              b.angle+=0.03*S.loopMult;
+              const targetX=S.player.x-b.w/2;
+              b.x+=(targetX-b.x)*0.03;
+              b.y=Math.min(centerY+80, b.targetY+60+Math.sin(b.angle)*50);
+              // Treme quando em fase 3 (raiva)
+              b.x+=Math.sin(now/50)*2;
+            }
+          }
+          // Fallback
+          else {
+            b.x+=b.dx;
+            if(b.x<=0||b.x+b.w>=W)b.dx*=-1;
+          }
+          // Clamp position
+          b.x=Math.max(0,Math.min(b.x,W-b.w));
+          b.y=Math.max(b.targetY-40,Math.min(b.y,H*0.45));
         }
         b.ft+=dt;if(b.ft>130){b.f=(b.f+1)%b.frames.length;b.ft=0;}
         draw(b.frames[b.f],b.x,b.y,b.w,b.h);
