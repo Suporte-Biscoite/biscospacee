@@ -40,7 +40,7 @@ function BossHUD({boss}){
           </div>
           <span style={{fontSize:8,color:'#fff',letterSpacing:1,textShadow:`0 0 8px ${col}`}}>{c.name}</span>
         </div>
-        <div style={{position:'absolute',right:0,bottom:5,fontSize:7,color:col,letterSpacing:1}}>{boss.hp}/{boss.maxHp}</div>
+        <div style={{position:'absolute',right:4,bottom:4,fontSize:12,fontWeight:900,color:'#fff',letterSpacing:2,textShadow:`0 0 6px ${col}, 0 0 12px rgba(0,0,0,0.9)`,background:'rgba(0,0,0,0.7)',padding:'2px 8px',borderRadius:4}}>{boss.hp} / {boss.maxHp}</div>
       </div>
       <div style={{width:'100%',height:18,background:'#020810',border:`2px solid ${col}`,borderTop:'none',borderRadius:'0 0 5px 5px',position:'relative',overflow:'hidden',zIndex:2,boxShadow:`0 4px 14px ${c.glow}`}}>
         <div style={{position:'absolute',top:0,left:0,bottom:0,width:`${pct*100}%`,background:dng?'linear-gradient(90deg,#ff2222,#ff6600)':c.grad,transition:'width 0.15s ease',backgroundImage:'repeating-linear-gradient(90deg,transparent 0px,transparent 10px,rgba(0,0,0,0.3) 10px,rgba(0,0,0,0.3) 12px)'}}>

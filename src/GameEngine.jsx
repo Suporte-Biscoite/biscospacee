@@ -36,7 +36,8 @@ export const POWER_DURATION = 10_000;
 // Limonê: 300HP → 60 tiros, phase2 at 150HP
 // Tartufão: 500HP → 100 tiros, phase2 at 250HP
 // Overlord: 800HP → 160 tiros, phase2 at 400HP, phase3 at 200HP
-const BOSS_DMG = 5;
+const BOSS_DMG = 15;
+const CHEAT_DMG = 100; // Dano do KAME
 
 import { useEffect, useRef } from 'react';
 
@@ -206,13 +207,14 @@ export default function GameEngine({
       S.lastBlT=now;
       const cx=S.player.x+S.player.w/2, cy=S.player.y;
       const spd=Math.max(8,Math.round(u*1.5));
+      const dmg=cheatMode?CHEAT_DMG:BOSS_DMG;
       if(hasPower('gran',now)){
         [-0.35,-0.17,0,0.17,0.35].forEach((a,i)=>{
           const gk=GC[i%5];
-          S.bullets.push({x:cx-blW/2,y:cy-blH,w:blW,h:blH,speed:spd,dx:a*2.5,frames:(A[gk]||A.projPadrao).map(img),f:0,ft:0,dmg:BOSS_DMG});
+          S.bullets.push({x:cx-blW/2,y:cy-blH,w:blW,h:blH,speed:spd,dx:a*2.5,frames:(A[gk]||A.projPadrao).map(img),f:0,ft:0,dmg});
         });
       } else {
-        S.bullets.push({x:cx-blW/2,y:cy-blH,w:blW,h:blH,speed:spd,dx:0,frames:A.projPadrao.map(img),f:0,ft:0,dmg:BOSS_DMG});
+        S.bullets.push({x:cx-blW/2,y:cy-blH,w:blW,h:blH,speed:spd,dx:0,frames:A.projPadrao.map(img),f:0,ft:0,dmg});
       }
     }
 
