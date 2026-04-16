@@ -28,7 +28,7 @@ export const PRIZE_THRESHOLDS = [
 
 export const ONEUP_DROP_CHANCE = 0.0000001;
 export const LOOP_MULTIPLIER = 1.2;
-export const HIT_SHRINK = 0.55;
+export const HIT_SHRINK = 0.45; // Hitbox mais justa
 export const POWER_DURATION = 10_000;
 
 // ─── BOSS BALANCE ───
@@ -306,22 +306,38 @@ export default function GameEngine({
     }
 
     /* === LOOP === */
+    let lastTime=0;
+    const TARGET_FPS=60;
+    const TARGET_DT=1000/TARGET_FPS; // 16.67ms
+    const gameStartTime=performance.now();
+
     function loop(now){
       if(dead)return;
       raf=requestAnimationFrame(loop);
-      const dt=16;
+
+      // Delta time normalizado para 60fps
+      // Em 165Hz: rawDt≈6ms, dtScale≈0.36 (move menos por frame, mesma velocidade visual)
+      // Em 60Hz: rawDt≈16ms, dtScale≈1.0
+      const rawDt=lastTime?Math.min(now-lastTime,50):TARGET_DT; // cap 50ms para evitar saltos
+      lastTime=now;
+      const dtScale=rawDt/TARGET_DT; // multiplicador de velocidade
+
+      // Velocidade progressiva: acelera 1% a cada 10 segundos de jogo
+      const gameTime=(now-gameStartTime)/1000; // segundos jogando
+      const timeAccel=1+Math.min(gameTime/1000, 0.5); // max +50% após ~8min
+
       ctx.clearRect(0,0,W,H);
 
-      // Player
+      // Player (não afetado por timeAccel, só por dtScale)
       const k=keysRef?.current??{};
-      let spd=S.player.speed;
-      if(hasPower('turbo',now))spd=Math.round(spd*1.5);
+      let spd=S.player.speed*dtScale;
+      if(hasPower('turbo',now))spd*=1.5;
       if(k.left)S.player.x-=spd; if(k.right)S.player.x+=spd;
       if(k.up)S.player.y-=spd*0.65; if(k.down)S.player.y+=spd*0.65;
       S.player.x=Math.max(0,Math.min(S.player.x,W-S.player.w));
       S.player.y=Math.max(H*0.15,Math.min(S.player.y,H-S.player.h-10));
 
-      S.pFT+=dt;if(S.pFT>120){S.pF=(S.pF+1)%4;S.pFT=0;}
+      S.pFT+=rawDt;if(S.pFT>120){S.pF=(S.pF+1)%4;S.pFT=0;}
       const inv=now<S.invUntil;
       if(!inv||Math.floor(now/120)%2===0)
         draw(img(A.nave[S.pF]),S.player.x,S.player.y,S.player.w,S.player.h);
@@ -334,8 +350,8 @@ export default function GameEngine({
       firePlayer(now);
 
       // Bullets
-      S.bullets=S.bullets.filter(b=>{b.y-=b.speed;b.x+=(b.dx||0);if(b.y+b.h<0||b.x<-20||b.x>W+20)return false;b.ft+=dt;if(b.ft>80){b.f=(b.f+1)%b.frames.length;b.ft=0;}draw(b.frames[b.f],b.x,b.y,b.w,b.h);return true;});
-      S.eBullets=S.eBullets.filter(eb=>{eb.y+=(eb.dy||eb.speed);eb.x+=(eb.dx||0);if(eb.y>H+10||eb.y<-20||eb.x<-30||eb.x>W+30)return false;eb.ft+=dt;if(eb.ft>100){eb.f=(eb.f+1)%eb.frames.length;eb.ft=0;}draw(eb.frames[eb.f],eb.x,eb.y,eb.w,eb.h);if(!inv&&collides(eb,S.player)){loseLife(now);return false;}return true;});
+      S.bullets=S.bullets.filter(b=>{b.y-=b.speed*dtScale;b.x+=(b.dx||0)*dtScale;if(b.y+b.h<0||b.x<-20||b.x>W+20)return false;b.ft+=rawDt;if(b.ft>80){b.f=(b.f+1)%b.frames.length;b.ft=0;}draw(b.frames[b.f],b.x,b.y,b.w,b.h);return true;});
+      S.eBullets=S.eBullets.filter(eb=>{eb.y+=(eb.dy||eb.speed)*dtScale*timeAccel;eb.x+=(eb.dx||0)*dtScale*timeAccel;if(eb.y>H+10||eb.y<-20||eb.x<-30||eb.x>W+30)return false;eb.ft+=rawDt;if(eb.ft>100){eb.f=(eb.f+1)%eb.frames.length;eb.ft=0;}draw(eb.frames[eb.f],eb.x,eb.y,eb.w,eb.h);if(!inv&&collides(eb,S.player)){loseLife(now);return false;}return true;});
 
       // Spawning (max 8 enemies on screen at once)
       if(S.phase==='spawning'){
@@ -346,14 +362,14 @@ export default function GameEngine({
 
       // Enemies
       S.enemies=S.enemies.filter(en=>{
-        en.y+=en.speed; en.x+=(en.dx||0);
+        en.y+=en.speed*dtScale*timeAccel; en.x+=(en.dx||0)*dtScale*timeAccel;
         if(en.x<=0||en.x+en.w>=W)en.dx=(en.dx||0)*-1;
         en.x=Math.max(0,Math.min(en.x,W-en.w));
         if(en.y>H+10){S.score=Math.max(0,S.score-Math.abs(SCORE.PENALTY_ESCAPED));onScoreUpdate?.(S.score);return false;}
-        en.ft+=dt;if(en.ft>110){en.f=(en.f+1)%en.frames.length;en.ft=0;}
+        en.ft+=rawDt;if(en.ft>110){en.f=(en.f+1)%en.frames.length;en.ft=0;}
         draw(en.frames[en.f],en.x,en.y,en.w,en.h);
         if(!inv&&collides(en,S.player)){loseLife(now);return false;}
-        en.sT-=dt;if(en.sT<=0){fireEnemy(en,false);en.sT=rand(2500,6000)/S.loopMult;}
+        en.sT-=rawDt;if(en.sT<=0){fireEnemy(en,false);en.sT=rand(2500,6000)/S.loopMult;}
         let hit=false;
         S.bullets=S.bullets.filter(b=>{if(!hit&&collides(b,en)){en.hp-=1;hit=true;if(en.hp<=0){addScore(en.pts,en.x+en.w/2,en.y);spawnDrop(en.x+en.w/2,en.y+en.h/2);}return false;}return true;});
         return en.hp>0;
@@ -381,7 +397,7 @@ export default function GameEngine({
           else if(b.name==='tartufao'){
             if(!b.dashTimer) b.dashTimer=0;
             if(!b.dashing) b.dashing=true;
-            b.dashTimer+=dt;
+            b.dashTimer+=rawDt;
             if(b.dashing){
               b.x+=b.dx*2.2; // move rápido
               if(b.x<=8||b.x+b.w>=W-8){b.dx*=-1;}
@@ -435,12 +451,12 @@ export default function GameEngine({
           b.x=Math.max(0,Math.min(b.x,W-b.w));
           b.y=Math.max(b.targetY-40,Math.min(b.y,H*0.45));
         }
-        b.ft+=dt;if(b.ft>130){b.f=(b.f+1)%b.frames.length;b.ft=0;}
+        b.ft+=rawDt;if(b.ft>130){b.f=(b.f+1)%b.frames.length;b.ft=0;}
         draw(b.frames[b.f],b.x,b.y,b.w,b.h);
 
         // Boss shooting (faster in higher phases)
         const shootInterval=Math.max(400, (1200-b.phase*200)/S.loopMult);
-        b.sT-=dt;
+        b.sT-=rawDt;
         if(b.sT<=0&&b.y>=b.targetY){fireEnemy(b,true);b.sT=shootInterval;}
         if(!inv&&collides(b,S.player))loseLife(now);
 
@@ -472,13 +488,13 @@ export default function GameEngine({
       }
 
       // Drops
-      S.drops=S.drops.filter(d=>{d.y+=d.speed;if(d.y>H+10)return false;d.ft+=dt;if(d.ft>140){d.f=(d.f+1)%d.frames.length;d.ft=0;}draw(d.frames[d.f],d.x,d.y,d.w,d.h);
+      S.drops=S.drops.filter(d=>{d.y+=d.speed*dtScale;if(d.y>H+10)return false;d.ft+=rawDt;if(d.ft>140){d.f=(d.f+1)%d.frames.length;d.ft=0;}draw(d.frames[d.f],d.x,d.y,d.w,d.h);
         if(collides(d,S.player,1.0)){
           switch(d.type){case '1up':if(S.lives<2){S.lives++;onLivesUpdate?.(S.lives);}break;case 'gran':setPower('gran',now);break;case 'glace':setPower('glace',now);break;case 'turbo':setPower('turbo',now);break;case 'bonus':setPower('bonus',now);break;}
           S.floats.push({x:d.x+d.w/2,y:d.y,img:null,text:d.type==='1up'?'+1 VIDA':'POWER UP!',color:'#2ec4b6',alpha:1,vy:-1.5,t:0});return false;}return true;});
 
       // Floats
-      S.floats=S.floats.filter(f=>{f.t+=dt;f.y+=f.vy;f.alpha=Math.max(0,1-f.t/900);ctx.globalAlpha=f.alpha;
+      S.floats=S.floats.filter(f=>{f.t+=rawDt;f.y+=f.vy*dtScale;f.alpha=Math.max(0,1-f.t/900);ctx.globalAlpha=f.alpha;
         if(f.img)ctx.drawImage(f.img,f.x-24,f.y,48,18);
         else if(f.text){ctx.font=`bold ${Math.round(u*2.2)}px "Orbitron",monospace`;ctx.fillStyle=f.color||'#ff4466';ctx.textAlign='center';ctx.fillText(f.text,f.x,f.y);}
         ctx.globalAlpha=1;return f.t<900;});

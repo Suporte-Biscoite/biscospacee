@@ -253,7 +253,7 @@ function SacolaPrizeArt(){
 }
 
 /* ══ GAME OVER COM PRÊMIOS + PIXEL ART ══ */
-function GameOverScreen({score, playerData, onRetry, onHome}){
+function GameOverScreen({score, playerData, onHome}){
   const [prizes, setPrizes] = useState([]);
   const [loading, setLoading] = useState(true);
   const isCheat = playerData?.phone === CHEAT_PHONE;
@@ -395,16 +395,10 @@ function GameOverScreen({score, playerData, onRetry, onHome}){
           </div>
         ) : null}
 
-        <div style={{display:'flex',gap:12,width:'100%',marginTop:8}}>
-          <button onClick={onRetry} className="pixelfont text-xs rounded-2xl font-black active:scale-95"
-            style={{flex:2,padding:'18px 0',background:'#3bc3cc',color:'#0f172a',border:'4px solid rgba(255,255,255,0.2)',boxShadow:'0 0 20px rgba(59,195,204,0.5)'}}>
-            JOGAR DE NOVO
-          </button>
-          <button onClick={onHome} className="pixelfont text-xs rounded-2xl font-black active:scale-95"
-            style={{flex:1,padding:'18px 0',background:'rgba(255,255,255,0.05)',color:'#667788',border:'2px solid rgba(255,255,255,0.1)'}}>
-            INÍCIO
-          </button>
-        </div>
+        <button onClick={onHome} className="pixelfont text-sm rounded-2xl font-black active:scale-95"
+          style={{width:'100%',marginTop:16,padding:'22px 0',background:'#3bc3cc',color:'#0f172a',border:'4px solid rgba(255,255,255,0.2)',boxShadow:'0 0 20px rgba(59,195,204,0.5)',letterSpacing:2}}>
+          VOLTAR AO INÍCIO
+        </button>
       </div>
     </div>
   );
@@ -450,27 +444,28 @@ export default function App(){
 
   const authKey = useRef(0);
 
+  const [cumulativeScore, setCumulativeScore] = useState(0);
+
   const handleAuth=useCallback((data)=>{
     setPlayerData(data);
+    setCumulativeScore(0); // Reset cumulative for new player session
     gk.current++;
     setScreen('game');
   },[]);
 
-  const handleGameOver=useCallback((score)=>{
-    setFinalScore(score);
+  const handleGameOver=useCallback((sessionScore)=>{
+    // Pontos são ACUMULATIVOS — soma com partidas anteriores
+    const newTotal = cumulativeScore + sessionScore;
+    setCumulativeScore(newTotal);
+    setFinalScore(newTotal);
     setScreen('gameover');
-  },[]);
-
-  // JOGAR DE NOVO — mesmo jogador, vai direto pro jogo
-  const handleRetry=useCallback(()=>{
-    gk.current++;
-    setScreen('game');
-  },[]);
+  },[cumulativeScore]);
 
   // INÍCIO — novo jogador, limpa tudo e volta pra tela inicial
   const handleHome=useCallback(()=>{
     setPlayerData(null);
-    authKey.current++; // força AuthScreen resetar completamente
+    setCumulativeScore(0);
+    authKey.current++;
     setScreen('start');
   },[]);
 
@@ -479,7 +474,7 @@ export default function App(){
       {screen==='start'&&<StartScreen ranking={ranking} onStart={()=>setScreen('auth')} />}
       {screen==='auth'&&<AuthScreen key={authKey.current} onAuth={handleAuth} />}
       {screen==='game'&&<GameScreen key={gk.current} playerData={playerData} onGameOver={handleGameOver} />}
-      {screen==='gameover'&&<GameOverScreen score={finalScore} playerData={playerData} onRetry={handleRetry} onHome={handleHome} />}
+      {screen==='gameover'&&<GameOverScreen score={finalScore} playerData={playerData} onHome={handleHome} />}
     </div>
   );
 }
