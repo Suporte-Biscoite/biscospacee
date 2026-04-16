@@ -145,10 +145,19 @@ export default async function handler(req, res) {
         });
       }
 
-      // Cheat: usa cupom fake se acabou o estoque
-      if (!chosenCoupon && isCheat) {
-        chosenPool = config.pools[0];
-        chosenCoupon = 'TEST-KAME-' + Math.random().toString(36).substring(2,6).toUpperCase() + '-0000';
+      // CHEAT: retorna fake sem gravar nada no banco
+      if (isCheat) {
+        const fakeCoupon = 'TEST-KAME-' + Math.random().toString(36).substring(2,6).toUpperCase() + '-0000';
+        const fakePool = config.pools[0];
+        return res.status(200).json({
+          ok: true,
+          prize: {
+            type: prizeType, name: fakePool.name, emoji: config.emoji,
+            coupon: fakeCoupon, score, playerId,
+            claimedAt: new Date().toISOString(),
+          },
+          message: `🧪 TESTE — ${fakePool.name} (voucher não consumido)`,
+        });
       }
 
       const rec = {
@@ -160,19 +169,17 @@ export default async function handler(req, res) {
         claimedAt: new Date().toISOString(),
       };
 
-      // Salvar prêmio no jogador
+      // Salvar prêmio no jogador (SOMENTE usuários reais)
       claimed.push(rec);
       await kv.set(prizesKey, claimed);
 
-      // Incrementar contador de usados (CHEAT NÃO CONSOME)
-      if (!isCheat) {
-        await kv.incr(chosenPool.stockKey);
-      }
+      // Incrementar contador de usados
+      await kv.incr(chosenPool.stockKey);
 
       // Log global do cupom
       await kv.set(`coupon:${chosenCoupon}`, {
         phone: cleanPhone, playerId, prize: chosenPool.name,
-        claimedAt: rec.claimedAt, isCheat,
+        claimedAt: rec.claimedAt,
       });
 
       return res.status(200).json({

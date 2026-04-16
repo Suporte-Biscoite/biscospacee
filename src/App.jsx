@@ -428,7 +428,7 @@ export default function App(){
         const r=await fetch('/api/ranking');
         const d=await r.json();
         if(d.ok&&d.ranking&&d.ranking.length>0) {
-          setRanking(d.ranking.map((r,i)=>({pos:i+1,name:r.playerId,pts:r.pts})));
+          setRanking(d.ranking.filter(r=>r.playerId!=='KAME').map((r,i)=>({pos:i+1,name:r.playerId,pts:r.pts})));
           return;
         }
       } catch(e){ /* API offline */ }
