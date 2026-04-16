@@ -8,6 +8,9 @@ import GameEngine, { PRIZE_THRESHOLDS } from './GameEngine';
 import StartScreen from './StartScreen';
 import AuthScreen from './AuthScreen';
 
+// Cheat mode: vida infinita + prêmios não consomem estoque
+const CHEAT_PHONE = '11948911448';
+
 function Toast({msg,onDone}){
   useEffect(()=>{const t=setTimeout(onDone,3500);return()=>clearTimeout(t);},[onDone]);
   return <div className="anim-toast fixed bottom-28 left-1/2 z-50 bg-yellow-400 text-slate-900 font-black text-center px-6 py-4 rounded-2xl shadow-2xl max-w-xs text-sm leading-snug" style={{transform:'translateX(-50%)'}}>{msg}</div>;
@@ -25,7 +28,7 @@ function BossHUD({boss}){
   if(!boss?.active)return null;
   const c=BC[boss.name]||BC.limone, pct=Math.max(0,boss.hp/boss.maxHp), dng=pct<0.2, col=dng?'#ff4466':c.color, ph=boss.phase||1;
   return(
-    <div style={{position:'absolute',bottom:220,left:'50%',transform:'translateX(-50%)',width:'min(380px,92%)',zIndex:25,fontFamily:"'Press Start 2P','Orbitron',monospace",pointerEvents:'none'}}>
+    <div style={{position:'absolute',top:56,left:'50%',transform:'translateX(-50%)',width:'min(420px,92%)',zIndex:25,fontFamily:"'Press Start 2P','Orbitron',monospace",pointerEvents:'none'}}>
       <div style={{display:'flex',alignItems:'center',gap:0,position:'relative',zIndex:2}}>
         <div style={{width:44,height:44,border:`2px solid ${col}`,borderBottom:'none',borderRadius:'6px 6px 0 0',background:'#08101e',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,flexShrink:0,boxShadow:`0 0 10px ${c.glow}`}}>{c.emoji}</div>
         <div style={{flex:1,display:'flex',flexDirection:'column',gap:1,padding:'0 8px 3px',borderBottom:`2px solid ${col}`}}>
@@ -73,7 +76,7 @@ function GameScreen({playerData, onGameOver}){
     <div className="relative w-full h-full overflow-hidden" style={{backgroundColor:'#02040a'}}>
       <img src="/tela_de_jogo.jpeg" alt="" draggable="false" onError={(e)=>{e.target.style.display='none';}}
         style={{position:'absolute',top:0,left:'50%',transform:'translateX(-50%)',height:'100%',width:'auto',maxWidth:'none',pointerEvents:'none',zIndex:0}} />
-      <GameEngine keysRef={keysRef} onScoreUpdate={setScore} onLivesUpdate={setLives} onWaveUpdate={setWave} onGameOver={(s)=>onGameOver(s)} onPrize={fireToast} onBossWarning={noop} onBossUpdate={setBossS} />
+      <GameEngine keysRef={keysRef} onScoreUpdate={setScore} onLivesUpdate={setLives} onWaveUpdate={setWave} onGameOver={(s)=>onGameOver(s)} onPrize={fireToast} onBossWarning={noop} onBossUpdate={setBossS} cheatMode={playerData?.phone===CHEAT_PHONE} />
 
       {/* HUD */}
       <div style={{position:'absolute',top:0,left:0,right:0,zIndex:20,height:52,background:'linear-gradient(180deg,rgba(4,6,15,0.97) 0%,rgba(4,6,15,0.6) 80%,transparent 100%)',borderBottom:'1px solid #2ec4b622',display:'flex',alignItems:'center',justifyContent:'space-between',padding:'0 16px',pointerEvents:'none',fontFamily:"'Orbitron',monospace"}}>

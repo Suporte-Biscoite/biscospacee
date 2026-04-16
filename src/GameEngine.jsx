@@ -84,6 +84,7 @@ const PATS=['line','v','diagonal','scatter','zigzag','arc'];
 export default function GameEngine({
   keysRef, onScoreUpdate, onLivesUpdate, onWaveUpdate,
   onBossUpdate, onGameOver, onPrize, onBossWarning,
+  cheatMode = false,
 }){
   const canvasRef=useRef(null), boxRef=useRef(null);
 
@@ -254,6 +255,7 @@ export default function GameEngine({
 
     function loseLife(now){
       if(now<S.invUntil)return;
+      if(cheatMode){S.invUntil=now+500;return;} // CHEAT: vida infinita
       if(hasPower('glace',now)){S.power.type=null;S.power.until=0;S.invUntil=now+500;return;}
       S.lives=Math.max(0,S.lives-1);onLivesUpdate?.(S.lives);
       S.invUntil=now+2000;
