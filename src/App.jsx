@@ -104,8 +104,9 @@ function GameScreen({playerData, onGameOver}){
 
       <BossHUD boss={bossS} />
 
-      <div style={{position:'absolute',bottom:24,left:0,right:0,zIndex:30,display:'flex',justifyContent:'center'}}>
-        <div style={{position:'relative',width:200,height:180,pointerEvents:'auto'}}>
+      {/* JOYSTICK GIGANTE PARA TOTEM 43" */}
+      <div style={{position:'absolute',bottom:40,left:0,right:0,zIndex:30,display:'flex',justifyContent:'center'}}>
+        <div style={{position:'relative',width:320,height:320,pointerEvents:'auto'}}>
           <DBtn pos={{position:'absolute',top:0,left:'50%',transform:'translateX(-50%)'}} label="▲" {...dir('up')} />
           <DBtn pos={{position:'absolute',bottom:0,left:'50%',transform:'translateX(-50%)'}} label="▼" {...dir('down')} />
           <DBtn pos={{position:'absolute',left:0,top:'50%',transform:'translateY(-50%)'}} label="◀" {...dir('left')} />
@@ -117,10 +118,34 @@ function GameScreen({playerData, onGameOver}){
   );
 }
 
+/* BOTÕES MAIORES (100px para o Totem 43") */
 function DBtn({label,pos,...handlers}){
   const [p,setP]=useState(false);
-  return(<button style={{...pos,width:64,height:64,display:'flex',alignItems:'center',justifyContent:'center',fontSize:26,borderRadius:16,userSelect:'none',background:p?'rgba(59,195,204,0.4)':'rgba(255,255,255,0.07)',border:`2px solid ${p?'rgba(59,195,204,0.9)':'rgba(255,255,255,0.15)'}`,color:p?'#3bc3cc':'rgba(255,255,255,0.5)',boxShadow:p?'0 0 16px rgba(59,195,204,0.6)':'none',outline:'none',WebkitTapHighlightColor:'transparent',cursor:'pointer'}}
-    onTouchStart={(e)=>{setP(true);handlers.onTouchStart?.(e);}} onTouchEnd={(e)=>{setP(false);handlers.onTouchEnd?.(e);}} onTouchCancel={(e)=>{setP(false);handlers.onTouchCancel?.(e);}} onMouseDown={(e)=>{setP(true);handlers.onMouseDown?.(e);}} onMouseUp={(e)=>{setP(false);handlers.onMouseUp?.(e);}} onMouseLeave={(e)=>{setP(false);handlers.onMouseLeave?.(e);}}>{label}</button>);
+  return(
+    <button
+      style={{
+        ...pos,
+        width:100,
+        height:100,
+        display:'flex',alignItems:'center',justifyContent:'center',
+        fontSize:45,
+        borderRadius:24,userSelect:'none',
+        background:p?'rgba(59,195,204,0.6)':'rgba(255,255,255,0.1)',
+        border:`3px solid ${p?'rgba(59,195,204,0.9)':'rgba(255,255,255,0.2)'}`,
+        color:p?'#ffffff':'rgba(255,255,255,0.7)',
+        boxShadow:p?'0 0 25px rgba(59,195,204,0.8)':'0 0 10px rgba(0,0,0,0.5)',
+        outline:'none',WebkitTapHighlightColor:'transparent',cursor:'pointer',
+      }}
+      onTouchStart={(e)=>{setP(true);handlers.onTouchStart?.(e);}}
+      onTouchEnd={(e)=>{setP(false);handlers.onTouchEnd?.(e);}}
+      onTouchCancel={(e)=>{setP(false);handlers.onTouchCancel?.(e);}}
+      onMouseDown={(e)=>{setP(true);handlers.onMouseDown?.(e);}}
+      onMouseUp={(e)=>{setP(false);handlers.onMouseUp?.(e);}}
+      onMouseLeave={(e)=>{setP(false);handlers.onMouseLeave?.(e);}}
+    >
+      {label}
+    </button>
+  );
 }
 
 /* ══ GAME OVER COM PRÊMIOS ══ */
@@ -302,6 +327,8 @@ export default function App(){
     return()=>clearInterval(iv);
   },[]);
 
+  const authKey = useRef(0);
+
   const handleAuth=useCallback((data)=>{
     setPlayerData(data);
     gk.current++;
@@ -313,20 +340,23 @@ export default function App(){
     setScreen('gameover');
   },[]);
 
+  // JOGAR DE NOVO — mesmo jogador, vai direto pro jogo
   const handleRetry=useCallback(()=>{
     gk.current++;
     setScreen('game');
   },[]);
 
+  // INÍCIO — novo jogador, limpa tudo e volta pra tela inicial
   const handleHome=useCallback(()=>{
     setPlayerData(null);
+    authKey.current++; // força AuthScreen resetar completamente
     setScreen('start');
   },[]);
 
   return(
     <div className="w-full h-full relative">
       {screen==='start'&&<StartScreen ranking={ranking} onStart={()=>setScreen('auth')} />}
-      {screen==='auth'&&<AuthScreen onAuth={handleAuth} />}
+      {screen==='auth'&&<AuthScreen key={authKey.current} onAuth={handleAuth} />}
       {screen==='game'&&<GameScreen key={gk.current} playerData={playerData} onGameOver={handleGameOver} />}
       {screen==='gameover'&&<GameOverScreen score={finalScore} playerData={playerData} onRetry={handleRetry} onHome={handleHome} />}
     </div>
