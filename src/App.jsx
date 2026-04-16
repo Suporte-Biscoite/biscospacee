@@ -163,10 +163,100 @@ function DBtn({label,pos,...handlers}){
   );
 }
 
-/* ══ GAME OVER COM PRÊMIOS ══ */
+/* ══ PIXEL ART SVG DOS PRESENTES ══ */
+function CookiePrizeArt(){
+  return(
+    <svg width="180" height="180" viewBox="0 0 32 32" style={{imageRendering:'pixelated',display:'block',margin:'0 auto'}}>
+      <rect width="32" height="32" fill="transparent"/>
+      <rect x="4" y="16" width="24" height="14" fill="#c87030"/>
+      <rect x="5" y="17" width="22" height="12" fill="#e89050"/>
+      <rect x="5" y="17" width="22" height="2" fill="#f0a860"/>
+      <rect x="5" y="27" width="22" height="3" fill="#b06030"/>
+      <rect x="4" y="28" width="24" height="2" fill="#8a4020"/>
+      <rect x="9" y="19" width="14" height="8" fill="#e8a860"/>
+      <rect x="10" y="20" width="12" height="6" fill="#f0b870"/>
+      <rect x="11" y="21" width="2" height="2" fill="#3d1f0a"/>
+      <rect x="15" y="20" width="2" height="2" fill="#3d1f0a"/>
+      <rect x="18" y="22" width="2" height="2" fill="#4a2810"/>
+      <rect x="13" y="23" width="2" height="1" fill="#3d1f0a"/>
+      <rect x="11" y="20" width="3" height="1" fill="#fff8e0"/>
+      <rect x="3" y="12" width="26" height="5" fill="#c87030"/>
+      <rect x="4" y="13" width="24" height="4" fill="#d88040"/>
+      <rect x="5" y="13" width="22" height="3" fill="#e89050"/>
+      <rect x="5" y="13" width="22" height="1" fill="#f0a860"/>
+      <rect x="3" y="16" width="26" height="1" fill="#9a4820"/>
+      <rect x="14" y="12" width="4" height="18" fill="#e84393"/>
+      <rect x="15" y="12" width="2" height="18" fill="#ff66aa"/>
+      <rect x="3" y="15" width="26" height="2" fill="#e84393"/>
+      <rect x="3" y="15" width="26" height="1" fill="#ff66aa"/>
+      <rect x="13" y="9" width="6" height="4" fill="#cc1166"/>
+      <rect x="14" y="9" width="4" height="3" fill="#e84393"/>
+      <rect x="15" y="9" width="2" height="2" fill="#ff88bb"/>
+      <rect x="7" y="5" width="7" height="5" fill="#e84393"/>
+      <rect x="8" y="4" width="5" height="6" fill="#e84393"/>
+      <rect x="8" y="5" width="4" height="4" fill="#ff44aa"/>
+      <rect x="9" y="5" width="2" height="3" fill="#ff88cc"/>
+      <rect x="18" y="5" width="7" height="5" fill="#e84393"/>
+      <rect x="19" y="4" width="5" height="6" fill="#e84393"/>
+      <rect x="20" y="5" width="4" height="4" fill="#ff44aa"/>
+      <rect x="21" y="5" width="2" height="3" fill="#ff88cc"/>
+      <rect x="1" y="10" width="2" height="2" fill="#e8b84b"/>
+      <rect x="29" y="14" width="2" height="2" fill="#2ec4b6"/>
+      <rect x="1" y="22" width="2" height="2" fill="#ff66aa"/>
+    </svg>
+  );
+}
+
+function SacolaPrizeArt(){
+  return(
+    <svg width="180" height="180" viewBox="0 0 32 32" style={{imageRendering:'pixelated',display:'block',margin:'0 auto'}}>
+      <rect width="32" height="32" fill="transparent"/>
+      <rect x="8" y="6" width="3" height="1" fill="#1a9a90"/>
+      <rect x="7" y="7" width="1" height="5" fill="#1a9a90"/>
+      <rect x="8" y="7" width="3" height="5" fill="#2ec4b6"/>
+      <rect x="9" y="7" width="1" height="5" fill="#5addd6"/>
+      <rect x="21" y="6" width="3" height="1" fill="#1a9a90"/>
+      <rect x="24" y="7" width="1" height="5" fill="#1a9a90"/>
+      <rect x="21" y="7" width="3" height="5" fill="#2ec4b6"/>
+      <rect x="22" y="7" width="1" height="5" fill="#5addd6"/>
+      <rect x="5" y="13" width="24" height="17" fill="#0e2234"/>
+      <rect x="4" y="12" width="3" height="17" fill="#162e44"/>
+      <rect x="5" y="12" width="22" height="17" fill="#1e4060"/>
+      <rect x="7" y="13" width="18" height="15" fill="#1e3a58"/>
+      <rect x="7" y="13" width="3" height="15" fill="#2a4a6a"/>
+      <rect x="7" y="13" width="18" height="2" fill="#2a5070"/>
+      <rect x="6" y="27" width="20" height="2" fill="#0e2030"/>
+      <rect x="5" y="11" width="22" height="2" fill="#0e2234"/>
+      <rect x="6" y="10" width="20" height="2" fill="#162e44"/>
+      <rect x="10" y="16" width="2" height="7" fill="#2ec4b6"/>
+      <rect x="12" y="16" width="3" height="1" fill="#2ec4b6"/>
+      <rect x="15" y="17" width="1" height="2" fill="#2ec4b6"/>
+      <rect x="12" y="19" width="3" height="1" fill="#2ec4b6"/>
+      <rect x="15" y="20" width="1" height="2" fill="#2ec4b6"/>
+      <rect x="12" y="22" width="3" height="1" fill="#2ec4b6"/>
+      <rect x="18" y="17" width="6" height="5" fill="#d4904a"/>
+      <rect x="19" y="16" width="4" height="7" fill="#e8a860"/>
+      <rect x="19" y="18" width="1" height="1" fill="#3d1f0a"/>
+      <rect x="21" y="20" width="1" height="1" fill="#3d1f0a"/>
+      <rect x="14" y="9" width="4" height="3" fill="#cc1166"/>
+      <rect x="15" y="8" width="2" height="4" fill="#e84393"/>
+      <rect x="9" y="7" width="5" height="3" fill="#e84393"/>
+      <rect x="18" y="7" width="5" height="3" fill="#e84393"/>
+      <rect x="14" y="4" width="4" height="1" fill="#ffe066"/>
+      <rect x="15" y="3" width="2" height="3" fill="#ffe066"/>
+      <rect x="15" y="4" width="2" height="1" fill="#ffffff"/>
+      <rect x="1" y="10" width="2" height="2" fill="#ff66aa"/>
+      <rect x="29" y="10" width="2" height="2" fill="#2ec4b6"/>
+      <rect x="29" y="23" width="2" height="2" fill="#e8b84b"/>
+    </svg>
+  );
+}
+
+/* ══ GAME OVER COM PRÊMIOS + PIXEL ART ══ */
 function GameOverScreen({score, playerData, onRetry, onHome}){
   const [prizes, setPrizes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const isCheat = playerData?.phone === CHEAT_PHONE;
 
   useEffect(()=>{
     const genCoupon = () => {
@@ -176,65 +266,73 @@ function GameOverScreen({score, playerData, onRetry, onHome}){
     };
 
     async function processPrizes(){
-      const day = new Date().toISOString().split('T')[0];
-
       try {
-        // Tentar salvar score via API
+        // Salvar score (cheat não entra no ranking — API cuida disso)
         await fetch('/api/score', {
           method:'POST', headers:{'Content-Type':'application/json'},
           body:JSON.stringify({phone:playerData.phone, playerId:playerData.playerId, score}),
         });
 
-        // Verificar prêmios existentes via API
+        // Verificar prêmios existentes
         const existingRes = await fetch(`/api/prize?phone=${playerData.phone}`);
         const existing = await existingRes.json();
         const alreadyClaimed = (existing.prizes||[]).map(p=>p.type);
 
-        // Resgatar prêmios elegíveis via API
         const newPrizes = [];
-        if(score>=20_000 && !alreadyClaimed.includes('sacola') && !playerData.existingPrizes?.find(p=>p.type==='sacola')){
-          const r=await fetch('/api/prize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:playerData.phone,playerId:playerData.playerId,prizeType:'sacola',score})});
-          const d=await r.json();
-          if(d.ok&&d.prize) newPrizes.push(d.prize);
-        }
-        if(score>=10_000 && !alreadyClaimed.includes('soft_cookie') && !playerData.existingPrizes?.find(p=>p.type==='soft_cookie')){
-          const r=await fetch('/api/prize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:playerData.phone,playerId:playerData.playerId,prizeType:'soft_cookie',score})});
-          const d=await r.json();
-          if(d.ok&&d.prize) newPrizes.push(d.prize);
+
+        if(isCheat){
+          // CHEAT: mostra prêmios fake SEM gastar vouchers
+          if(score>=20_000) newPrizes.push({type:'sacola',name:'SACOLA SURPRESA',emoji:'🎁',coupon:'TEST-KAME-XXXX-0000',score});
+          if(score>=10_000) newPrizes.push({type:'soft_cookie',name:'SOFT COOKIE',emoji:'🍪',coupon:'TEST-KAME-YYYY-0000',score});
+        } else {
+          // Usuário normal: resgata via API (consome voucher real)
+          if(score>=20_000 && !alreadyClaimed.includes('sacola')){
+            const r=await fetch('/api/prize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:playerData.phone,playerId:playerData.playerId,prizeType:'sacola',score})});
+            const d=await r.json();
+            if(d.ok&&d.prize) newPrizes.push(d.prize);
+          }
+          if(score>=10_000 && !alreadyClaimed.includes('soft_cookie')){
+            const r=await fetch('/api/prize',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:playerData.phone,playerId:playerData.playerId,prizeType:'soft_cookie',score})});
+            const d=await r.json();
+            if(d.ok&&d.prize) newPrizes.push(d.prize);
+          }
         }
         setPrizes(newPrizes);
 
       } catch(e){
-        // ═══ FALLBACK OFFLINE ═══
+        // FALLBACK OFFLINE
         console.warn('API offline — prêmios via localStorage');
-        
-        // Salvar score localmente
-        const scores = JSON.parse(localStorage.getItem('biscoite_scores')||'[]');
-        scores.push({phone:playerData.phone, playerId:playerData.playerId, score, day, at:new Date().toISOString()});
-        localStorage.setItem('biscoite_scores', JSON.stringify(scores));
+        if(!isCheat){
+          const day = new Date().toISOString().split('T')[0];
+          const scores = JSON.parse(localStorage.getItem('biscoite_scores')||'[]');
+          scores.push({phone:playerData.phone, playerId:playerData.playerId, score, day});
+          localStorage.setItem('biscoite_scores', JSON.stringify(scores));
+          const ranking = JSON.parse(localStorage.getItem('biscoite_ranking')||'{}');
+          if(!ranking[playerData.playerId] || score > ranking[playerData.playerId])
+            ranking[playerData.playerId] = score;
+          localStorage.setItem('biscoite_ranking', JSON.stringify(ranking));
 
-        // Salvar no ranking local
-        const ranking = JSON.parse(localStorage.getItem('biscoite_ranking')||'{}');
-        if(!ranking[playerData.playerId] || score > ranking[playerData.playerId])
-          ranking[playerData.playerId] = score;
-        localStorage.setItem('biscoite_ranking', JSON.stringify(ranking));
-
-        // Verificar prêmios locais
-        const prizesKey = `biscoite_prizes_${playerData.phone}_${day}`;
-        const localPrizes = JSON.parse(localStorage.getItem(prizesKey)||'[]');
-        const alreadyClaimed = localPrizes.map(p=>p.type);
-
-        const newPrizes = [];
-        if(score>=20_000 && !alreadyClaimed.includes('sacola')){
-          const p = {type:'sacola',name:'SACOLA SURPRESA',emoji:'🎁',coupon:genCoupon(),score};
-          localPrizes.push(p); newPrizes.push(p);
+          const prizesKey = `biscoite_prizes_${playerData.phone}_${day}`;
+          const localPrizes = JSON.parse(localStorage.getItem(prizesKey)||'[]');
+          const alreadyClaimed = localPrizes.map(p=>p.type);
+          const newPrizes = [];
+          if(score>=20_000 && !alreadyClaimed.includes('sacola')){
+            const p={type:'sacola',name:'SACOLA SURPRESA',emoji:'🎁',coupon:genCoupon(),score};
+            localPrizes.push(p); newPrizes.push(p);
+          }
+          if(score>=10_000 && !alreadyClaimed.includes('soft_cookie')){
+            const p={type:'soft_cookie',name:'SOFT COOKIE',emoji:'🍪',coupon:genCoupon(),score};
+            localPrizes.push(p); newPrizes.push(p);
+          }
+          localStorage.setItem(prizesKey, JSON.stringify(localPrizes));
+          setPrizes(newPrizes);
+        } else {
+          // Cheat offline
+          const newPrizes = [];
+          if(score>=20_000) newPrizes.push({type:'sacola',name:'SACOLA SURPRESA',emoji:'🎁',coupon:'TEST-KAME-XXXX-0000',score});
+          if(score>=10_000) newPrizes.push({type:'soft_cookie',name:'SOFT COOKIE',emoji:'🍪',coupon:'TEST-KAME-YYYY-0000',score});
+          setPrizes(newPrizes);
         }
-        if(score>=10_000 && !alreadyClaimed.includes('soft_cookie')){
-          const p = {type:'soft_cookie',name:'SOFT COOKIE',emoji:'🍪',coupon:genCoupon(),score};
-          localPrizes.push(p); newPrizes.push(p);
-        }
-        localStorage.setItem(prizesKey, JSON.stringify(localPrizes));
-        setPrizes(newPrizes);
       }
       setLoading(false);
     }
@@ -246,7 +344,7 @@ function GameOverScreen({score, playerData, onRetry, onHome}){
       <img src="/tela_de_jogo.jpeg" alt="" draggable="false" onError={(e)=>{e.target.style.display='none';}}
         style={{position:'fixed',top:0,left:'50%',transform:'translateX(-50%)',height:'100%',width:'auto',maxWidth:'none',pointerEvents:'none',filter:'brightness(0.15) blur(3px)'}} />
 
-      <div className="relative flex flex-col items-center gap-5 w-full px-6" style={{zIndex:10,maxWidth:420}}>
+      <div className="relative flex flex-col items-center gap-5 w-full px-6" style={{zIndex:10,maxWidth:480}}>
         <h1 className="pixelfont text-xl text-center leading-tight" style={{color:'#ef4444',textShadow:'0 0 30px #ef4444'}}>FIM DE JOGO</h1>
 
         <div style={{width:'100%',borderRadius:16,padding:'20px 24px',textAlign:'center',background:'rgba(15,23,42,0.95)',border:'2px solid rgba(71,85,105,0.8)'}}>
@@ -256,36 +354,44 @@ function GameOverScreen({score, playerData, onRetry, onHome}){
           <p className="font-mono font-black tabular-nums" style={{color:'#facc15',fontSize:42}}>{score.toLocaleString('pt-BR')}</p>
         </div>
 
-        {/* Prêmios ganhos */}
+        {/* Prêmios com PIXEL ART */}
         {loading ? (
           <p style={{fontSize:10,color:'#4a7090',fontFamily:"'Press Start 2P',monospace"}}>Verificando prêmios...</p>
         ) : prizes.length > 0 ? (
-          <div style={{width:'100%',display:'flex',flexDirection:'column',gap:12}}>
+          <div style={{width:'100%',display:'flex',flexDirection:'column',gap:16}}>
             {prizes.map((p,i)=>(
               <div key={i} style={{
-                width:'100%',borderRadius:16,padding:'20px 20px',textAlign:'center',
-                background:p.type==='sacola'?'rgba(56,189,248,0.1)':'rgba(232,184,75,0.1)',
-                border:`2px solid ${p.type==='sacola'?'#38bdf8':'#e8b84b'}`,
+                width:'100%',borderRadius:20,padding:'24px 20px',textAlign:'center',
+                background: p.type==='sacola' ? 'linear-gradient(180deg,rgba(46,196,182,0.08),rgba(46,196,182,0.02))' : 'linear-gradient(180deg,rgba(232,184,75,0.08),rgba(232,184,75,0.02))',
+                border:`3px solid ${p.type==='sacola'?'#2ec4b6':'#e8b84b'}`,
+                boxShadow:`0 0 30px ${p.type==='sacola'?'rgba(46,196,182,0.15)':'rgba(232,184,75,0.15)'}`,
               }}>
-                <p style={{fontSize:24,marginBottom:8}}>{p.emoji}</p>
-                <p style={{fontSize:10,color:'#fff',fontFamily:"'Press Start 2P',monospace",fontWeight:900,marginBottom:4}}>{p.name}</p>
-                <p style={{fontSize:8,color:'#8aabb8',fontFamily:"'Orbitron',monospace",marginBottom:12}}>
-                  RESGATE COM A ATENDENTE COM O CUPOM:
+                {/* SVG Pixel Art do presente */}
+                {p.type==='soft_cookie' ? <CookiePrizeArt/> : <SacolaPrizeArt/>}
+
+                <p style={{fontSize:12,color:p.type==='sacola'?'#5addd6':'#f0c070',fontFamily:"'Press Start 2P',monospace",fontWeight:900,marginTop:12,marginBottom:4,letterSpacing:2}}>
+                  ★ {p.type==='soft_cookie'?'10.000':'20.000'} PTS ★
+                </p>
+                <p style={{fontSize:14,color:'#fff',fontFamily:"'Press Start 2P',monospace",fontWeight:900,marginBottom:12}}>{p.name}</p>
+                <p style={{fontSize:9,color:'#8aabb8',fontFamily:"'Orbitron',monospace",marginBottom:12,lineHeight:1.6}}>
+                  RESGATE COM A ATENDENTE<br/>MOSTRANDO O CUPOM ABAIXO:
                 </p>
                 <div style={{
-                  background:'rgba(0,0,0,0.5)',borderRadius:10,padding:'12px 16px',
-                  fontFamily:"'Press Start 2P',monospace",fontSize:14,color:'#2ec4b6',
-                  letterSpacing:3,wordBreak:'break-all',
-                  border:'2px dashed #2ec4b666',
+                  background:'rgba(0,0,0,0.6)',borderRadius:12,padding:'16px 20px',
+                  fontFamily:"'Press Start 2P',monospace",fontSize:16,color:p.type==='sacola'?'#2ec4b6':'#e8b84b',
+                  letterSpacing:4,wordBreak:'break-all',
+                  border:`2px dashed ${p.type==='sacola'?'#2ec4b666':'#e8b84b66'}`,
+                  textShadow:`0 0 10px ${p.type==='sacola'?'rgba(46,196,182,0.5)':'rgba(232,184,75,0.5)'}`,
                 }}>
                   {p.coupon}
                 </div>
+                {isCheat&&<p style={{fontSize:7,color:'#ff4466',marginTop:8,fontFamily:'monospace'}}>⚠ MODO TESTE — VOUCHER NÃO CONSUMIDO</p>}
               </div>
             ))}
           </div>
         ) : score >= 10_000 ? (
           <div style={{width:'100%',borderRadius:12,padding:'16px',textAlign:'center',background:'rgba(255,255,255,0.03)',border:'1px solid rgba(255,255,255,0.08)'}}>
-            <p style={{fontSize:8,color:'#667788',fontFamily:"'Press Start 2P',monospace"}}>Prêmios já resgatados hoje! 🎉</p>
+            <p style={{fontSize:8,color:'#667788',fontFamily:"'Press Start 2P',monospace"}}>Prêmios já resgatados! 🎉</p>
           </div>
         ) : null}
 
