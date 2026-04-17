@@ -28,7 +28,7 @@ export const PRIZE_THRESHOLDS = [
 
 export const ONEUP_DROP_CHANCE = 0.0000001;
 export const LOOP_MULTIPLIER = 1.2;
-export const HIT_SHRINK = 0.45; // Hitbox mais justa
+export const HIT_SHRINK = 0.8; // Hitbox generosa — tiro pega fácil
 export const POWER_DURATION = 10_000;
 
 // ─── BOSS BALANCE ───
@@ -75,9 +75,9 @@ Object.values(A).flat().forEach(s=>img(s));
 const GC=['projGranR','projGranT','projGranA','projGranP','projGranX'];
 
 const WAVES=[
-  {types:['migalha'],             si:1500, spd:1.0, maxEn:12, boss:'limone',  bHp:300, bPts:SCORE.BOSS_LIMONE},
-  {types:['migalha','cobertura'], si:1200, spd:1.4, maxEn:16, boss:'tartufao',bHp:500, bPts:SCORE.BOSS_TARTUFAO},
-  {types:['migalha','cobertura','darkbaker'], si:900, spd:1.8, maxEn:20, boss:'overlord',bHp:800, bPts:SCORE.BOSS_OVERLORD},
+  {types:['migalha'],             si:1500, spd:1.0, maxEn:12, boss:'limone',  bHp:300, bPts:SCORE.BOSS_LIMONE,  miniHp:1},
+  {types:['migalha','cobertura'], si:1200, spd:1.4, maxEn:16, boss:'tartufao',bHp:500, bPts:SCORE.BOSS_TARTUFAO, miniHp:1},
+  {types:['migalha','cobertura','darkbaker'], si:900, spd:1.8, maxEn:20, boss:'overlord',bHp:800, bPts:SCORE.BOSS_OVERLORD, miniHp:2},
 ];
 
 const PATS=['line','v','diagonal','scatter','zigzag','arc'];
@@ -223,50 +223,67 @@ export default function GameEngine({
       const bossPhase=from.phase||1;
       if(isBoss){
         const pf=(from.name==='limone'?A.projGota:from.name==='tartufao'?A.projPalito:A.projChip).map(img);
+        const atk=Math.random(); // random attack selection
 
-        // ═══ LIMONÊ — Chuva cítrica: gotas caem em arco ═══
+        // ═══ LIMONÊ REX ═══
         if(from.name==='limone'){
-          const count=bossPhase>=2?3:2;
-          for(let i=0;i<count;i++){
-            const angle=(i/(count-1)-0.5)*1.2; // spread de -0.6 a 0.6
-            S.eBullets.push({x:cx,y:cy,w:blW,h:blH,speed:(3+bossPhase*0.8)*S.loopMult,dx:angle*2.5,frames:pf,f:0,ft:0});
+          if(bossPhase>=2 && atk<0.4){
+            // CHUVA CÍTRICA — 5 gotas em posições espalhadas
+            for(let i=0;i<5;i++){
+              const rx=rand(blW*2, W-blW*2);
+              S.eBullets.push({x:rx,y:-blH,w:blW,h:blH,speed:(2+rand(0,1.5))*S.loopMult,dx:rand(-0.3,0.3),frames:pf,f:0,ft:0});
+            }
+          } else {
+            // ESPREMIDA — arco de suco (3-4 gotas em leque)
+            const count=bossPhase>=2?4:3;
+            for(let i=0;i<count;i++){
+              const angle=(i/(count-1)-0.5)*1.4;
+              S.eBullets.push({x:cx,y:cy,w:blW,h:blH,speed:(2.5+bossPhase*0.5)*S.loopMult,dx:angle*2,frames:pf,f:0,ft:0});
+            }
           }
         }
-        // ═══ TARTUFÃO — Rajada concentrada: 3 tiros rápidos em sequência ═══
+        // ═══ TARTUFÃO ═══
         else if(from.name==='tartufao'){
-          const burstCount=bossPhase>=2?2:1;
-          for(let i=0;i<burstCount;i++){
-            setTimeout(()=>{
-              if(!S.boss)return;
-              const bx=S.boss.x+S.boss.w/2-blW/2;
-              // Mira no jogador
-              const pdx=(S.player.x+S.player.w/2-bx)*0.015;
-              S.eBullets.push({x:bx,y:S.boss.y+S.boss.h,w:blW,h:blH,speed:(4+bossPhase)*S.loopMult,dx:pdx,frames:pf,f:0,ft:0});
-            },i*150);
-          }
-          // Fase 2: tiros laterais extras
-          if(bossPhase>=2){
-            S.eBullets.push({x:cx-from.w/3,y:cy,w:blW,h:blH,speed:3*S.loopMult,dx:-2,frames:pf,f:0,ft:0});
-            S.eBullets.push({x:cx+from.w/3,y:cy,w:blW,h:blH,speed:3*S.loopMult,dx:2,frames:pf,f:0,ft:0});
+          if(bossPhase>=2 && atk<0.35){
+            // TSUNAMI — fileira horizontal de 4 palitos
+            const y=from.y+from.h;
+            for(let i=0;i<4;i++){
+              const x=W*0.15+i*(W*0.7/3);
+              S.eBullets.push({x,y,w:blW,h:blH*1.5,speed:3.5*S.loopMult,dx:0,frames:pf,f:0,ft:0});
+            }
+          } else if(atk<0.5){
+            // ESPIRAL GIRATÓRIA — 4 palitos em rotação
+            for(let i=0;i<4;i++){
+              const a=(Math.PI*2/4)*i+(from.dashTimer||0)*0.003;
+              S.eBullets.push({x:cx,y:cy,w:blW,h:blH,speed:2.5*S.loopMult,dx:Math.cos(a)*2,dy:Math.sin(a)*1.5+2,frames:pf,f:0,ft:0});
+            }
+          } else {
+            // Rajada mirada — 1-2 tiros que miram no jogador
+            const pdx=(S.player.x+S.player.w/2-(cx+blW/2))*0.012;
+            S.eBullets.push({x:cx,y:cy,w:blW,h:blH,speed:(3+bossPhase)*S.loopMult,dx:pdx,frames:pf,f:0,ft:0});
+            if(bossPhase>=2) S.eBullets.push({x:cx,y:cy,w:blW,h:blH,speed:(2.5+bossPhase)*S.loopMult,dx:pdx+rand(-0.5,0.5),frames:pf,f:0,ft:0});
           }
         }
-        // ═══ OVERLORD — Padrão espiral: chips giram em espiral ═══
+        // ═══ COOKIE OVERLORD ═══
         else if(from.name==='overlord'){
-          const count=bossPhase>=3?5:bossPhase>=2?4:3;
-          for(let i=0;i<count;i++){
-            const a=(Math.PI*2/count)*i+(from.angle||0);
-            S.eBullets.push({
-              x:cx,y:cy,w:blW,h:blH,
-              speed:(3+bossPhase*0.5)*S.loopMult,
-              dx:Math.cos(a)*2.5,
-              dy:Math.sin(a)*1.5+2, // componente vertical
-              frames:pf,f:0,ft:0,
-            });
-          }
-          // Fase 3: onda central que persegue
-          if(bossPhase>=3){
-            const pdx=(S.player.x+S.player.w/2-cx)*0.02;
-            S.eBullets.push({x:cx,y:cy,w:blW*2,h:blH*2,speed:5*S.loopMult,dx:pdx,frames:A.projChip.map(img),f:0,ft:0});
+          if(bossPhase>=3 && atk<0.3){
+            // AVANÇO — onda que empurra (3 balas grandes lentas)
+            for(let i=0;i<3;i++){
+              S.eBullets.push({x:cx-blW+i*blW,y:cy,w:blW*2,h:blH*2,speed:2*S.loopMult,dx:(i-1)*0.5,frames:A.projChip.map(img),f:0,ft:0});
+            }
+          } else if(bossPhase>=2 && atk<0.5){
+            // CHUVA DE BAUNILHA — 3 colunas aleatórias
+            for(let i=0;i<3;i++){
+              const rx=rand(W*0.1, W*0.9);
+              S.eBullets.push({x:rx,y:-blH*2,w:blW*1.5,h:blH*1.5,speed:(2+rand(0,1))*S.loopMult,dx:0,frames:pf,f:0,ft:0});
+            }
+          } else {
+            // CHIP EXPLOSIVO — 1 chip que "explode" em 4 menores (simulado com delay)
+            const count=bossPhase>=2?4:3;
+            for(let i=0;i<count;i++){
+              const a=(Math.PI*2/count)*i+(from.angle||0);
+              S.eBullets.push({x:cx,y:cy,w:blW,h:blH,speed:(2.5+bossPhase*0.3)*S.loopMult,dx:Math.cos(a)*1.8,dy:Math.sin(a)*1.2+2,frames:pf,f:0,ft:0});
+            }
           }
         }
       } else {
@@ -299,7 +316,13 @@ export default function GameEngine({
     function loseLife(now){
       if(now<S.invUntil)return;
       if(cheatMode){S.invUntil=now+500;return;} // CHEAT: vida infinita
-      if(hasPower('glace',now)){S.power.type=null;S.power.until=0;S.invUntil=now+500;return;}
+      if(hasPower('glace',now)){
+        if(!S.shieldHits)S.shieldHits=3;
+        S.shieldHits--;
+        S.invUntil=now+300;
+        if(S.shieldHits<=0){S.power.type=null;S.power.until=0;S.shieldHits=0;}
+        return;
+      }
       S.lives=Math.max(0,S.lives-1);onLivesUpdate?.(S.lives);
       S.invUntil=now+2000;
       if(S.lives<=0){dead=true;onGameOver?.(S.score);}
@@ -331,7 +354,7 @@ export default function GameEngine({
       // Player (não afetado por timeAccel, só por dtScale)
       const k=keysRef?.current??{};
       let spd=S.player.speed*dtScale;
-      if(hasPower('turbo',now))spd*=1.5;
+      if(hasPower('turbo',now))spd*=2.5;
       if(k.left)S.player.x-=spd; if(k.right)S.player.x+=spd;
       if(k.up)S.player.y-=spd*0.65; if(k.down)S.player.y+=spd*0.65;
       S.player.x=Math.max(0,Math.min(S.player.x,W-S.player.w));
@@ -343,8 +366,8 @@ export default function GameEngine({
         draw(img(A.nave[S.pF]),S.player.x,S.player.y,S.player.w,S.player.h);
 
       // Power visuals
-      if(hasPower('glace',now)){ctx.save();ctx.strokeStyle='#2ec4b6';ctx.lineWidth=2;ctx.shadowColor='#2ec4b6';ctx.shadowBlur=14;ctx.globalAlpha=0.5+0.3*Math.sin(now/200);ctx.strokeRect(S.player.x-5,S.player.y-5,S.player.w+10,S.player.h+10);ctx.restore();}
-      if(hasPower('turbo',now)){ctx.save();ctx.globalAlpha=0.5;const tx=S.player.x+S.player.w/2;ctx.fillStyle='#ff9a3c';ctx.fillRect(tx-4,S.player.y+S.player.h,8,14+Math.sin(now/80)*5);ctx.fillStyle='#ffe066';ctx.fillRect(tx-2,S.player.y+S.player.h+2,4,10);ctx.restore();}
+      if(hasPower('glace',now)){ctx.save();ctx.strokeStyle='#2ec4b6';ctx.lineWidth=3;ctx.shadowColor='#2ec4b6';ctx.shadowBlur=20;ctx.globalAlpha=0.7+0.3*Math.sin(now/200);ctx.strokeRect(S.player.x-8,S.player.y-8,S.player.w+16,S.player.h+16);ctx.font='bold '+Math.round(u*2.5)+'px Orbitron';ctx.fillStyle='#2ec4b6';ctx.textAlign='center';ctx.fillText('🛡'+( S.shieldHits||0),S.player.x+S.player.w/2,S.player.y-14);ctx.restore();}
+      if(hasPower('turbo',now)){ctx.save();ctx.globalAlpha=0.7;const tx=S.player.x+S.player.w/2;ctx.fillStyle='#ff6600';ctx.fillRect(tx-6,S.player.y+S.player.h,12,20+Math.sin(now/60)*8);ctx.fillStyle='#ffe066';ctx.fillRect(tx-3,S.player.y+S.player.h+2,6,16);ctx.fillStyle='#fff';ctx.fillRect(tx-1,S.player.y+S.player.h+4,2,10);ctx.restore();}
       if(hasPower('bonus',now)){ctx.save();ctx.font=`bold ${Math.round(u*2)}px "Orbitron",monospace`;ctx.fillStyle='#e8b84b';ctx.textAlign='center';ctx.globalAlpha=0.8+0.2*Math.sin(now/250);ctx.fillText('×2',S.player.x+S.player.w/2,S.player.y-10);ctx.restore();}
 
       firePlayer(now);
@@ -490,7 +513,7 @@ export default function GameEngine({
       // Drops
       S.drops=S.drops.filter(d=>{d.y+=d.speed*dtScale;if(d.y>H+10)return false;d.ft+=rawDt;if(d.ft>140){d.f=(d.f+1)%d.frames.length;d.ft=0;}draw(d.frames[d.f],d.x,d.y,d.w,d.h);
         if(collides(d,S.player,1.0)){
-          switch(d.type){case '1up':if(S.lives<2){S.lives++;onLivesUpdate?.(S.lives);}break;case 'gran':setPower('gran',now);break;case 'glace':setPower('glace',now);break;case 'turbo':setPower('turbo',now);break;case 'bonus':setPower('bonus',now);break;}
+          switch(d.type){case '1up':if(S.lives<2){S.lives++;onLivesUpdate?.(S.lives);}break;case 'gran':setPower('gran',now);break;case 'glace':setPower('glace',now);S.shieldHits=3;break;case 'turbo':setPower('turbo',now);break;case 'bonus':setPower('bonus',now);break;}
           S.floats.push({x:d.x+d.w/2,y:d.y,img:null,text:d.type==='1up'?'+1 VIDA':'POWER UP!',color:'#2ec4b6',alpha:1,vy:-1.5,t:0});return false;}return true;});
 
       // Floats
