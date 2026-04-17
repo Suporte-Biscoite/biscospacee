@@ -295,10 +295,15 @@ export default function GameEngine({
     function spawnDrop(x,y){
       const dx=x-drS/2;
       if(Math.random()<ONEUP_DROP_CHANCE){S.drops.push({x:dx,y,w:drS,h:drS,speed:2,type:'1up',frames:A.dropVida.map(img),f:0,ft:0});return;}
-      if(Math.random()<0.25){
-        const t=['turbo','glace','gran','bonus'][randI(0,3)];
-        const fm={turbo:A.dropTurbo,glace:A.dropGlace,gran:A.dropGran,bonus:A.dropBonus};
-        S.drops.push({x:dx,y,w:drS,h:drS,speed:2.5,type:t,frames:fm[t].map(img),f:0,ft:0});
+      if(Math.random()<0.28){
+        // Mais granulado (leque de tiros) e turbo, sem glacê nos drops aleatórios
+        const r=Math.random();
+        let t,fm;
+        if(r<0.40){t='gran';fm=A.dropGran;}       // 40% granulado
+        else if(r<0.65){t='turbo';fm=A.dropTurbo;} // 25% turbo
+        else if(r<0.85){t='bonus';fm=A.dropBonus;} // 20% bonus x2
+        else{t='glace';fm=A.dropGlace;}             // 15% glacê (escudo)
+        S.drops.push({x:dx,y,w:drS,h:drS,speed:2.5,type:t,frames:fm.map(img),f:0,ft:0});
       }
     }
 
