@@ -29,24 +29,27 @@ function BossHUD({boss}){
   const c=BC[boss.name]||BC.limone, pct=Math.max(0,boss.hp/boss.maxHp), dng=pct<0.2, col=dng?'#ff4466':c.color, ph=boss.phase||1;
   return(
     <div style={{position:'absolute',top:56,left:'50%',transform:'translateX(-50%)',width:'min(420px,92%)',zIndex:25,fontFamily:"'Press Start 2P','Orbitron',monospace",pointerEvents:'none'}}>
-      {/* Fundo escuro opaco para a barra não sumir no boss */}
       <div style={{position:'absolute',inset:'-8px -12px',background:'rgba(2,4,10,0.92)',borderRadius:12,zIndex:0,boxShadow:'0 4px 20px rgba(0,0,0,0.8)'}}/>
       <div style={{display:'flex',alignItems:'center',gap:0,position:'relative',zIndex:2}}>
         <div style={{width:44,height:44,border:`2px solid ${col}`,borderBottom:'none',borderRadius:'6px 6px 0 0',background:'#08101e',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22,flexShrink:0,boxShadow:`0 0 10px ${c.glow}`}}>{c.emoji}</div>
         <div style={{flex:1,display:'flex',flexDirection:'column',gap:1,padding:'0 8px 3px',borderBottom:`2px solid ${col}`}}>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-            <span style={{fontSize:6,color:col,letterSpacing:2,opacity:0.7}}>{c.label}</span>
-            {ph>=2&&<span style={{fontSize:5,color:dng?'#ff4466':'#ff8800',letterSpacing:1,background:'rgba(0,0,0,0.6)',padding:'1px 4px',borderRadius:2}}>{PL[ph]||`FASE ${ph}`}</span>}
+            <span style={{fontSize:7,color:col,letterSpacing:2}}>{c.label}</span>
+            {ph>=2&&<span style={{fontSize:6,color:dng?'#ff4466':'#ff8800',letterSpacing:1,background:'rgba(0,0,0,0.6)',padding:'1px 6px',borderRadius:3}}>{PL[ph]||`FASE ${ph}`}</span>}
           </div>
-          <span style={{fontSize:8,color:'#fff',letterSpacing:1,textShadow:`0 0 8px ${col}`}}>{c.name}</span>
+          <span style={{fontSize:9,color:'#fff',letterSpacing:1,textShadow:`0 0 8px ${col}`}}>{c.name}</span>
         </div>
-        <div style={{position:'absolute',right:4,bottom:4,fontSize:12,fontWeight:900,color:'#fff',letterSpacing:2,textShadow:`0 0 6px ${col}, 0 0 12px rgba(0,0,0,0.9)`,background:'rgba(0,0,0,0.7)',padding:'2px 8px',borderRadius:4}}>{boss.hp} / {boss.maxHp}</div>
       </div>
-      <div style={{width:'100%',height:18,background:'#020810',border:`2px solid ${col}`,borderTop:'none',borderRadius:'0 0 5px 5px',position:'relative',overflow:'hidden',zIndex:2,boxShadow:`0 4px 14px ${c.glow}`}}>
-        <div style={{position:'absolute',top:0,left:0,bottom:0,width:`${pct*100}%`,background:dng?'linear-gradient(90deg,#ff2222,#ff6600)':c.grad,transition:'width 0.15s ease',backgroundImage:'repeating-linear-gradient(90deg,transparent 0px,transparent 10px,rgba(0,0,0,0.3) 10px,rgba(0,0,0,0.3) 12px)'}}>
-          <div style={{position:'absolute',top:0,left:0,right:0,height:5,background:'linear-gradient(180deg,rgba(255,255,255,0.2),transparent)'}}/>
+      {/* Barra de vida COLORIDA (cor do boss, vermelho quando baixo) */}
+      <div style={{width:'100%',height:22,background:'#0a0e18',border:`2px solid ${col}`,borderTop:'none',borderRadius:'0 0 6px 6px',position:'relative',overflow:'hidden',zIndex:2,boxShadow:`0 4px 14px ${c.glow}`}}>
+        <div style={{position:'absolute',top:0,left:0,bottom:0,width:`${pct*100}%`,background:dng?'linear-gradient(90deg,#ff2222,#ff6600)':c.grad,transition:'width 0.15s ease'}}>
+          <div style={{position:'absolute',top:0,left:0,right:0,height:6,background:'linear-gradient(180deg,rgba(255,255,255,0.25),transparent)'}}/>
         </div>
-        {dng&&<div style={{position:'absolute',inset:0,zIndex:4,background:'rgba(255,0,0,0.12)',animation:'df .5s step-end infinite'}}/>}
+        {/* Contador HP DENTRO da barra — sempre visível e sincronizado */}
+        <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:900,color:'#fff',letterSpacing:2,textShadow:'0 0 4px rgba(0,0,0,1), 0 0 8px rgba(0,0,0,1), 1px 1px 0 #000',zIndex:3}}>
+          {Math.max(0,boss.hp)} / {boss.maxHp}
+        </div>
+        {dng&&<div style={{position:'absolute',inset:0,zIndex:4,background:'rgba(255,0,0,0.15)',animation:'df .5s step-end infinite'}}/>}
       </div>
       <style>{`@keyframes df{0%,100%{opacity:1}50%{opacity:0}}`}</style>
     </div>
@@ -109,8 +112,8 @@ function GameScreen({playerData, onGameOver}){
 
       <BossHUD boss={bossS} />
 
-      {/* JOYSTICK GIGANTE PARA TOTEM 43" */}
-      <div style={{position:'absolute',bottom:40,left:0,right:0,zIndex:30,display:'flex',justifyContent:'center'}}>
+      {/* JOYSTICK — posicionado mais alto para conforto no totem */}
+      <div style={{position:'absolute',bottom:200,left:0,right:0,zIndex:30,display:'flex',justifyContent:'center'}}>
         <div style={{position:'relative',width:320,height:320,pointerEvents:'auto'}}>
           <DBtn pos={{position:'absolute',top:0,left:'50%',transform:'translateX(-50%)'}} label="▲" {...dir('up')} />
           <DBtn pos={{position:'absolute',bottom:0,left:'50%',transform:'translateX(-50%)'}} label="▼" {...dir('down')} />
@@ -273,10 +276,11 @@ function GameOverScreen({score, playerData, onHome}){
           body:JSON.stringify({phone:playerData.phone, playerId:playerData.playerId, score}),
         });
 
-        // Verificar prêmios existentes
+        // Verificar prêmios existentes (filtrar só os de HOJE)
         const existingRes = await fetch(`/api/prize?phone=${playerData.phone}`);
         const existing = await existingRes.json();
-        const alreadyClaimed = (existing.prizes||[]).map(p=>p.type);
+        const today = new Date().toISOString().split('T')[0];
+        const alreadyClaimed = (existing.prizes||[]).filter(p=>p.day===today).map(p=>p.type);
 
         const newPrizes = [];
 
@@ -354,47 +358,27 @@ function GameOverScreen({score, playerData, onHome}){
           <p className="font-mono font-black tabular-nums" style={{color:'#facc15',fontSize:42}}>{score.toLocaleString('pt-BR')}</p>
         </div>
 
-        {/* Prêmios com PIXEL ART */}
+        {/* Prêmios com PIXEL ART — sem voucher/QR, atendente vê na tela */}
         {loading ? (
           <p style={{fontSize:10,color:'#4a7090',fontFamily:"'Press Start 2P',monospace"}}>Verificando prêmios...</p>
         ) : prizes.length > 0 ? (
           <div style={{width:'100%',display:'flex',flexDirection:'column',gap:16}}>
             {prizes.map((p,i)=>(
               <div key={i} style={{
-                width:'100%',borderRadius:20,padding:'24px 20px',textAlign:'center',
-                background: p.type==='sacola' ? 'linear-gradient(180deg,rgba(46,196,182,0.08),rgba(46,196,182,0.02))' : 'linear-gradient(180deg,rgba(232,184,75,0.08),rgba(232,184,75,0.02))',
+                width:'100%',borderRadius:20,padding:'28px 20px',textAlign:'center',
+                background: p.type==='sacola' ? 'linear-gradient(180deg,rgba(46,196,182,0.12),rgba(46,196,182,0.02))' : 'linear-gradient(180deg,rgba(232,184,75,0.12),rgba(232,184,75,0.02))',
                 border:`3px solid ${p.type==='sacola'?'#2ec4b6':'#e8b84b'}`,
-                boxShadow:`0 0 30px ${p.type==='sacola'?'rgba(46,196,182,0.15)':'rgba(232,184,75,0.15)'}`,
+                boxShadow:`0 0 30px ${p.type==='sacola'?'rgba(46,196,182,0.2)':'rgba(232,184,75,0.2)'}`,
               }}>
-                {/* SVG Pixel Art do presente */}
                 {p.type==='soft_cookie' ? <CookiePrizeArt/> : <SacolaPrizeArt/>}
-
-                <p style={{fontSize:12,color:p.type==='sacola'?'#5addd6':'#f0c070',fontFamily:"'Press Start 2P',monospace",fontWeight:900,marginTop:12,marginBottom:4,letterSpacing:2}}>
+                <p style={{fontSize:14,color:p.type==='sacola'?'#5addd6':'#f0c070',fontFamily:"'Press Start 2P',monospace",fontWeight:900,marginTop:16,marginBottom:6,letterSpacing:2}}>
                   ★ {p.type==='soft_cookie'?'10.000':'20.000'} PTS ★
                 </p>
-                <p style={{fontSize:14,color:'#fff',fontFamily:"'Press Start 2P',monospace",fontWeight:900,marginBottom:12}}>{p.name}</p>
-                <p style={{fontSize:9,color:'#8aabb8',fontFamily:"'Orbitron',monospace",marginBottom:12,lineHeight:1.6}}>
-                  RESGATE COM A ATENDENTE<br/>MOSTRANDO O CUPOM ABAIXO:
+                <p style={{fontSize:16,color:'#fff',fontFamily:"'Press Start 2P',monospace",fontWeight:900,marginBottom:16}}>{p.name}</p>
+                <p style={{fontSize:11,color:'#8aabb8',fontFamily:"'Orbitron',monospace",lineHeight:1.8}}>
+                  🎉 PARABÉNS!<br/>RETIRE SEU PRÊMIO COM A ATENDENTE!
                 </p>
-                <div style={{
-                  background:'rgba(0,0,0,0.6)',borderRadius:12,padding:'16px 20px',
-                  fontFamily:"'Press Start 2P',monospace",fontSize:16,color:p.type==='sacola'?'#2ec4b6':'#e8b84b',
-                  letterSpacing:4,wordBreak:'break-all',
-                  border:`2px dashed ${p.type==='sacola'?'#2ec4b666':'#e8b84b66'}`,
-                  textShadow:`0 0 10px ${p.type==='sacola'?'rgba(46,196,182,0.5)':'rgba(232,184,75,0.5)'}`,
-                }}>
-                  {p.coupon}
-                </div>
-                {/* QR CODE para atendente escanear */}
-                <div style={{marginTop:16,padding:12,background:'#fff',borderRadius:12,display:'inline-block'}}>
-                  <img
-                    src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(p.coupon)}`}
-                    alt={`QR ${p.coupon}`}
-                    style={{width:200,height:200,display:'block'}}
-                  />
-                </div>
-                <p style={{fontSize:7,color:'#556677',marginTop:6,fontFamily:'monospace'}}>Mostre o QR Code para a atendente</p>
-                {isCheat&&<p style={{fontSize:7,color:'#ff4466',marginTop:4,fontFamily:'monospace'}}>⚠ MODO TESTE — VOUCHER NÃO CONSUMIDO</p>}
+                {isCheat&&<p style={{fontSize:7,color:'#ff4466',marginTop:8,fontFamily:'monospace'}}>⚠ MODO TESTE</p>}
               </div>
             ))}
           </div>

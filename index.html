@@ -9,8 +9,24 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Press+Start+2P&family=Nunito:wght@700;900&display=swap" rel="stylesheet">
   </head>
-  <body>
+  <body oncontextmenu="return false">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      // Bloqueia menu de contexto, inspetor, atalhos do Chrome
+      document.addEventListener('contextmenu', e => e.preventDefault());
+      document.addEventListener('keydown', e => {
+        // F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+U
+        if (e.key === 'F12' || 
+            (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C')) ||
+            (e.ctrlKey && e.key === 'u')) {
+          e.preventDefault();
+        }
+      });
+      // Bloqueia long-press no touch (impede menu do Chrome)
+      document.addEventListener('touchstart', e => {
+        if (e.touches.length > 1) e.preventDefault();
+      }, { passive: false });
+    </script>
   </body>
 </html>

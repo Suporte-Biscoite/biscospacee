@@ -1,10 +1,11 @@
 @import "tailwindcss/preflight" layer(base);
 @import "tailwindcss/utilities" layer(utilities);
 
-/* ─── Reset & Totem Touch Lock ─────────────────────────────── */
+/* ─── Reset & Totem Touch Lock ─────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
 }
 
 html, body {
@@ -13,8 +14,19 @@ html, body {
   overflow: hidden;
   user-select: none; -webkit-user-select: none;
   touch-action: none; -webkit-touch-callout: none;
+  -ms-touch-action: none;
   background-color: #0f172a;
   color: white;
+  /* Impede menu de contexto no Windows touchscreen */
+  -ms-content-zooming: none;
+  -ms-touch-select: none;
+}
+
+/* Impede seleção de texto e drag em TUDO */
+img, a, button, div, span, p, canvas {
+  user-select: none; -webkit-user-select: none;
+  -webkit-user-drag: none;
+  touch-action: none;
 }
 
 #root {
@@ -36,7 +48,7 @@ html, body {
   background: #04060f;
 }
 
-/* ─── Animações globais ───────────────────────────────────── */
+/* ─── Animações globais ───────────────────────────── */
 @keyframes blink      { 0%,100%{opacity:1} 50%{opacity:0} }
 @keyframes slideDown  { from{transform:translateY(-60px);opacity:0} to{transform:translateY(0);opacity:1} }
 @keyframes slideUp    { from{transform:translateY(60px);opacity:0}  to{transform:translateY(0);opacity:1} }
@@ -54,7 +66,7 @@ html, body {
 .anim-toast      { animation: toast-in-out 3s ease forwards; }
 .anim-pulse      { animation: pulse 2s ease-in-out infinite; }
 
-/* ─── Fontes arcade ──────────────────────────────────────── */
+/* ─── Fontes arcade ──────────────────────────────── */
 .pixelfont {
   font-family: 'Press Start 2P', 'Courier New', Courier, monospace;
   letter-spacing: 0.05em; font-weight: 900;

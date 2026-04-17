@@ -112,14 +112,16 @@ export default async function handler(req, res) {
     const isCheat = cleanPhone === CHEAT_PHONE;
 
     try {
+      const day = new Date().toISOString().split('T')[0];
       const prizesKey = `prizes:${cleanPhone}`;
       const claimed = await kv.get(prizesKey) || [];
 
-      // Já resgatou este tipo? (1 por tipo por telefone, lifetime)
-      if (claimed.find(c => c.type === prizeType) && !isCheat) {
+      // 1 por tipo por telefone POR DIA (day1 winners can win on day2)
+      const todayClaimed = claimed.filter(c => c.day === day);
+      if (todayClaimed.find(c => c.type === prizeType) && !isCheat) {
         return res.status(200).json({
           ok: false, alreadyClaimed: true,
-          message: `Você já resgatou ${config.name}!`,
+          message: `Você já resgatou ${config.name} hoje!`,
           prizes: claimed,
         });
       }
@@ -165,7 +167,7 @@ export default async function handler(req, res) {
         name: chosenPool.name,
         emoji: config.emoji,
         coupon: chosenCoupon,
-        score, playerId,
+        score, playerId, day,
         claimedAt: new Date().toISOString(),
       };
 
